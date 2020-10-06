@@ -49,23 +49,59 @@ export default {
     };
   },
   created() {
-    this.content = this.$store.state.content;
+    this.content = this.parseToContent(this.$store.state.tasks);
     if (this.content == "") {
-      this.content =
-        "# ここにタスク名\n## meta\n- due_date:2020/01/01\n- status:Closed\n## body\nここにコンテンツ。\n# タスク２\n## body\n\n * アイテム１\n# タスク3\n## meta\n- due_date:2020/12/3 1\n## body\nここにコンテンツ。\n";
+      this.content = `# ここにタスク名
+## meta
+- due_date:2020/12/31
+- status:Closed
+
+## body
+ここにコンテンツ。
+
+# タスク２
+
+## body
+* アイテム１
+
+# タスク3
+## meta
+- due_date:2020/12/31
+
+## body
+ここにコンテンツ。
+`;
+
     }
   },
   methods: {
-    onInputText() {
-      console.log(this.content);
-      let lines = this.content.toString().split("\n");
+    parseToContent(tasks) {
+      return tasks
+        .map((t) => {
+          let name = "# " + t.name;
+          let meta =
+            t.dueDate != "" || t.status != ""
+              ? "\n## meta\n" +
+                "- due_date:" +
+                t.dueDate +
+                "\n" +
+                "- status:" +
+                t.status
+              : "";
+          let body = "\n## body\n" + t.body;
+          return name + "\n" + meta + "\n" + body.replace(/\n$/, "");
+        })
+        .join("\n")
+        .replace(/\n\n+/g, "\n\n");
+    },
+    parseToTask(content) {
+      let lines = content.toString().split("\n");
       let tasks = [];
       let name = "";
       let isMeta = false;
       let dueDate = "";
       let status = "";
       let body = null;
-      console.log(lines);
       let id = 0;
       lines.forEach((line) => {
         console.log(line);
@@ -86,7 +122,7 @@ export default {
           body = null;
           dueDate = "";
           status = "";
-        } else if (line.trim().match("^## meta")) {
+        } else if (line.trim().match("^## meta$")) {
           isMeta = true;
         } else if (
           isMeta &&
@@ -99,7 +135,7 @@ export default {
           (line.trim().match("^- status:") || line.trim().match("^\\* status:"))
         ) {
           status = line.split("status:")[1].trim();
-        } else if (line.trim().match("^## body")) {
+        } else if (line.trim().match("^## body$")) {
           isMeta = false;
           body = "";
         } else if (body != null) {
@@ -114,8 +150,12 @@ export default {
         status: status,
         body: body,
       });
+
+      return tasks;
+    },
+    onInputText() {
+      let tasks = this.parseToTask(this.content);
       this.$store.dispatch("updateTasks", tasks);
-      this.$store.dispatch("updateContent", this.content);
     },
   },
 };
