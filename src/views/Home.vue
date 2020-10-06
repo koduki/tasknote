@@ -52,7 +52,7 @@ export default {
     this.content = this.$store.state.content;
     if (this.content == "") {
       this.content =
-        "# ここにタスク名\n## meta\n- due_date:2020/01/01\n- status:Closed\n## body\nここにコンテンツ。\n# タスク２\n## body\n\n * アイテム１\n# タスク3\n## meta\n- due_date:2020/12/31\n## body\nここにコンテンツ。\n";
+        "# ここにタスク名\n## meta\n- due_date:2020/01/01\n- status:Closed\n## body\nここにコンテンツ。\n# タスク２\n## body\n\n * アイテム１\n# タスク3\n## meta\n- due_date:2020/12/3 1\n## body\nここにコンテンツ。\n";
     }
   },
   methods: {
@@ -66,12 +66,20 @@ export default {
       let status = "";
       let body = null;
       console.log(lines);
+      let id = 0;
       lines.forEach((line) => {
         console.log(line);
 
         if (line.trim().match("^# ")) {
           if (body != null) {
-            let task = { name: name, dueDate: dueDate, status: status, body: body };
+            id++;
+            let task = {
+              id: id,
+              name: name,
+              dueDate: dueDate,
+              status: status,
+              body: body,
+            };
             tasks.push(task);
           }
           name = line.trim().replace(/^# /, "");
@@ -98,7 +106,14 @@ export default {
           body += line + "\n";
         }
       });
-      tasks.push({ name: name, dueDate: dueDate, status: status, body: body });
+      id++;
+      tasks.push({
+        id: id,
+        name: name,
+        dueDate: dueDate,
+        status: status,
+        body: body,
+      });
       this.$store.dispatch("updateTasks", tasks);
       this.$store.dispatch("updateContent", this.content);
     },

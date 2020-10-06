@@ -7,6 +7,7 @@
     <table class="table" style="text-align=">
       <thead>
         <tr>
+          <th scope="col">#</th>
           <th scope="col">Name</th>
           <th scope="col">ステータス</th>
           <th scope="col">期日</th>
@@ -14,7 +15,8 @@
       </thead>
       <tbody>
         <tr v-for="task in this.$store.state.tasks" :key="task._id">
-          <td><a href=".">{{ task.name }}</a></td>
+          <th><router-link :to='"/tickets/" + task.id'>{{ task.id }}</router-link></th>
+          <td><router-link :to='"/tickets/" + task.id'>{{ task.name }}</router-link></td>
           <td>{{ (task.status != "") ? task.status : "Open"}}</td>
           <td>{{ (task.dueDate != "") ? task.dueDate : "-" }}</td>
         </tr>
