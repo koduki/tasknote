@@ -17,7 +17,6 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +34,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @Dependent
 public class TaskService {
 
-    @ConfigProperty(name = "todo.gcp.project")
+    @ConfigProperty(name = "tasknotes.gcp.project")
     String projectId;
 
     @PostConstruct
@@ -52,7 +51,7 @@ public class TaskService {
 
     public List<Task> findTasks() throws ExecutionException, InterruptedException {
         var db = FirestoreClient.getFirestore();
-      
+
         return db.collection("tasks").get().get().getDocuments().stream()
                 .map(x -> toTask(x))
                 .collect(Collectors.toList());

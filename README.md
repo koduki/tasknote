@@ -1,0 +1,1 @@
+gcloud builds submit --config tasknotes-mono/cloudbuild.yaml --project ${GCP_PROJRCT}

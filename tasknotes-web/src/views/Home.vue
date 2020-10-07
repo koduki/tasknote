@@ -59,6 +59,7 @@ export default {
       fullPage: true,
       timer: "",
       content: "",
+      prevContent: "",
     };
   },
   created() {
@@ -87,8 +88,8 @@ export default {
 `;
     }
 
-    setTimeout(this.autosave, 1);
-    this.timer = setInterval(this.autosave, 60 * 1000);
+    this.load();
+    this.timer = setInterval(this.autosave, 5 * 1000);
   },
   beforeDestroy() {
     clearInterval(this.timer);
@@ -111,7 +112,7 @@ export default {
             if (item.type.indexOf("image") != -1) {
               event.preventDefault();
 
-              const uri = "" + "/tasks/image";
+              const uri = process.env.VUE_APP_API_BASE_URL + "/tasks/image";
 
               const data = new FormData();
               data.append("file", file);
@@ -129,11 +130,12 @@ export default {
                   cm.setSelection(startPoint, endPoint);
                   cm.focus();
                   this.isLoading = false;
-                  // this.$router.push({ name: "Home" });
                 })
                 .catch((error) => {
                   this.isLoading = false;
-                  // this.message = `status: ${error.response.status}, message: ${error.response.data}`;
+                  console(
+                    `status: ${error.response.status}, message: ${error.response.data}`
+                  );
                 });
             }
           }
@@ -220,15 +222,40 @@ export default {
       return tasks;
     },
     autosave() {
-      const uri = "" + "/tasks/save";
+      if (this.prevContent != this.content) {
+        this.prevContent = this.content;
+        
+        const host = process.env.VUE_APP_API_BASE_URL;
+        const uri = (host == "none" ? "" : host) + "/tasks/save";
+        const data = { text: this.content };
+
+        const config = {
+          headers: {
+            // Authorization: "Bearer " + this.$store.state.user.token,
+          },
+        };
+        this.axios.post(uri, data, config).then((response) => {
+          console.log(response.data);
+        });
+      } else {
+        console.log("skip autosave");
+      }
+    },
+    load() {
+      console.log("a");
+      console.log(process.env.VUE_APP_API_BASE_URL);
+      const host = process.env.VUE_APP_API_BASE_URL;
+      const uri = (host == "none" ? "" : host) + "/tasks/load";
 
       const config = {
         headers: {
           // Authorization: "Bearer " + this.$store.state.user.token,
         },
       };
-      this.axios.post(uri, config).then((response) => {
-        console.log(response.data);
+      this.axios.get(uri, config).then((response) => {
+        this.content = response.data.text;
+        let tasks = this.parseToTask(this.content);
+        this.$store.dispatch("updateTasks", tasks);
       });
     },
     onInputText() {

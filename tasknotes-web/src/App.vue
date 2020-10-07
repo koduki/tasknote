@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header>
-      <h1>task.Note</h1>
+      <h1>task.Notes</h1>
     </header>
     <div id="nav">
       <router-link to="/">edit-mode</router-link> |
