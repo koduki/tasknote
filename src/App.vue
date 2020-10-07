@@ -1,10 +1,13 @@
 <template>
   <div id="app">
+    <header>
+      <h1>task.Note</h1>
+    </header>
     <div id="nav">
       <router-link to="/">edit-mode</router-link> |
       <router-link to="/tickets">ticket-mode</router-link>
     </div>
-    <router-view/>
+    <router-view />
   </div>
 </template>
 

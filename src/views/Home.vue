@@ -1,7 +1,13 @@
 <template>
   <div class="container-fluid home" style="text-align: left">
+    <loading
+      :active.sync="isLoading"
+      :can-cancel="true"
+      :on-cancel="onCancel"
+      :is-full-page="fullPage"
+    ></loading>
     <div class="align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <h1 class="h2">編集モード</h1>
+      <h1 class="h2">edit-mode</h1>
     </div>
 
     <div class="row">
@@ -28,6 +34,7 @@
             v-model="content"
             ref="markdownEditor"
             @input="onInputText"
+            @initialized="onInitializedEditor"
           />
         </div>
       </main>
@@ -37,14 +44,20 @@
 
 <script>
 import VueSimplemde from "vue-simplemde";
+import Loading from "vue-loading-overlay";
+import "vue-loading-overlay/dist/vue-loading.css";
 
 export default {
   name: "Home",
   components: {
     VueSimplemde,
+    loading: Loading,
   },
   data() {
     return {
+      isLoading: false,
+      fullPage: true,
+      timer: "",
       content: "",
     };
   },
@@ -57,7 +70,8 @@ export default {
 - status:Closed
 
 ## body
-ここにコンテンツ。
+### ここにコンテンツ。
+![image.png](https://storage.googleapis.com/ajfgeay8733/image/bb0c1b12-b2bc-4443-bbe3-9dd12870a2c1.png)
 
 # タスク２
 
@@ -71,10 +85,62 @@ export default {
 ## body
 ここにコンテンツ。
 `;
-
     }
+
+    setTimeout(this.autosave, 1);
+    this.timer = setInterval(this.autosave, 60 * 1000);
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
   },
   methods: {
+    onInitializedEditor() {
+      console.log("onInitializedEditor");
+
+      // regist paste event
+      const editor = this.$refs.markdownEditor.simplemde;
+      document
+        .getElementsByClassName("vue-simplemde")[0]
+        .addEventListener("paste", (event) => {
+          console.log(event);
+
+          const items = event.clipboardData.items;
+          for (var i = 0; i < items.length; i++) {
+            const item = items[i];
+            const file = item.getAsFile();
+            if (item.type.indexOf("image") != -1) {
+              event.preventDefault();
+
+              const uri = "http://localhost:8080/tasks/image";
+
+              const data = new FormData();
+              data.append("file", file);
+              const config = { headers: {} };
+              this.isLoading = true;
+              this.axios
+                .post(uri, data, config)
+                .then((response) => {
+                  const cm = editor.codemirror;
+                  var startPoint = cm.getCursor("start");
+                  var endPoint = cm.getCursor("end");
+
+                  const term = "![image.png](" + response.data.url + ")";
+                  cm.replaceSelection(term);
+                  cm.setSelection(startPoint, endPoint);
+                  cm.focus();
+                  this.isLoading = false;
+                  // this.$router.push({ name: "Home" });
+                })
+                .catch((error) => {
+                  this.isLoading = false;
+                  // this.message = `status: ${error.response.status}, message: ${error.response.data}`;
+                });
+            }
+          }
+        });
+
+      console.log(this.$refs.markdownEditor.simplemde);
+    },
     parseToContent(tasks) {
       return tasks
         .map((t) => {
@@ -104,7 +170,7 @@ export default {
       let body = null;
       let id = 0;
       lines.forEach((line) => {
-        console.log(line);
+        // console.log(line);
 
         if (line.trim().match("^# ")) {
           if (body != null) {
@@ -153,9 +219,27 @@ export default {
 
       return tasks;
     },
+    autosave() {
+      const uri = "http://localhost:8080" + "/tasks/save";
+
+      const config = {
+        headers: {
+          // Authorization: "Bearer " + this.$store.state.user.token,
+        },
+      };
+      this.axios.post(uri, config).then((response) => {
+        console.log(response.data);
+      });
+    },
     onInputText() {
       let tasks = this.parseToTask(this.content);
       this.$store.dispatch("updateTasks", tasks);
+    },
+    onPaste(event) {
+      console.log("on paste", event);
+    },
+    onCancel: function () {
+      console.log("User cancelled the loader.");
     },
   },
 };

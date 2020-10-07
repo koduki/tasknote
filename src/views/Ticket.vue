@@ -16,7 +16,7 @@
       </tbody>
     </table>
     <h2 class="h4">Description & Activity:</h2>
-    <main role="main" class="col-md-8">
+    <main role="main" class="col-md-12">
       <div>
         <vue-simplemde v-model="task.body" ref="markdownEditor" />
       </div>
