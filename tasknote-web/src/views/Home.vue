@@ -111,7 +111,7 @@ export default {
             if (item.type.indexOf("image") != -1) {
               event.preventDefault();
 
-              const uri = "https://tasknote-6fbhe65axa-uc.a.run.app/tasks/image";
+              const uri = "" + "/tasks/image";
 
               const data = new FormData();
               data.append("file", file);
@@ -220,7 +220,7 @@ export default {
       return tasks;
     },
     autosave() {
-      const uri = "https://tasknote-6fbhe65axa-uc.a.run.app" + "/tasks/save";
+      const uri = "" + "/tasks/save";
 
       const config = {
         headers: {
