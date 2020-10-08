@@ -4,7 +4,7 @@
       <h1>task.Notes</h1>
     </header>
     <div id="nav">
-      <router-link to="/">edit-mode</router-link> |
+      <router-link to="/home">edit-mode</router-link> |
       <router-link to="/tickets">ticket-mode</router-link>
     </div>
     <router-view />

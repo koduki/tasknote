@@ -34,6 +34,7 @@ steps:
   '--region', 'us-central1', 
   '--platform', 'managed', 
   '--allow-unauthenticated',
+  '--set-env-vars', 'TASKNOTES_GCP_PROJECT=$PROJECT_ID',
   '--service-account', 'toolbox@toolbox-289508.iam.gserviceaccount.com'
   ]
 

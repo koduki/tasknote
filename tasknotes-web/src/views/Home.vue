@@ -43,9 +43,9 @@
 </template>
 
 <script>
-import VueSimplemde from "vue-simplemde";
 import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/vue-loading.css";
+import VueSimplemde from "vue-simplemde";
 
 export default {
   name: "Home",
@@ -117,7 +117,11 @@ export default {
 
               const data = new FormData();
               data.append("file", file);
-              const config = { headers: {} };
+              const config = {
+                headers: {
+                  Authorization: "Bearer " + this.$store.state.user.token,
+                },
+              };
               this.isLoading = true;
               this.axios
                 .post(uri, data, config)
@@ -225,14 +229,14 @@ export default {
     autosave() {
       if (this.prevContent != this.content) {
         this.prevContent = this.content;
-        
+
         const host = process.env.VUE_APP_API_BASE_URL;
         const uri = (host == "none" ? "" : host) + "/tasks/save";
         const data = { text: this.content };
 
         const config = {
           headers: {
-            // Authorization: "Bearer " + this.$store.state.user.token,
+            Authorization: "Bearer " + this.$store.state.user.token,
           },
         };
         this.axios.post(uri, data, config).then((response) => {
@@ -250,7 +254,7 @@ export default {
 
       const config = {
         headers: {
-          // Authorization: "Bearer " + this.$store.state.user.token,
+          Authorization: "Bearer " + this.$store.state.user.token,
         },
       };
       this.axios.get(uri, config).then((response) => {

@@ -1,11 +1,12 @@
 import Vue from 'vue'
 import App from './App.vue'
-import router from './router'
-import store from './store'
+import router from '@/router'
+import store from '@/store'
+import Auth from "@/modules/auth"
 
 // Import axios
-import axios from "axios";
-import VueAxios from "vue-axios";
+import axios from 'axios'
+import VueAxios from 'vue-axios'
 
 Vue.use(VueAxios, axios);
 
@@ -21,6 +22,9 @@ import { BCarouselSlide } from 'bootstrap-vue'
 Vue.component('b-carousel-slide', BCarouselSlide)
 
 Vue.config.productionTip = false
+
+// Auth
+Auth.init();
 
 new Vue({
   router,
