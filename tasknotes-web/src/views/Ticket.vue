@@ -19,35 +19,37 @@
         style="margin: 20px"
       >
         <div class="sidebar-sticky">
-          <ul class="nav flex-column">
+          <ul class="list-group">
             <li
-              class="nav-item"
-              v-for="task in this.$store.state.tasks"
-              :key="task._id"
+              @click="onClickTicketItem(t)"
+              class="list-group-item"
+              v-for="t in this.$store.state.tasks"
+              :key="t._id"
             >
-              <span @onclick="onClickTicketItem(task)"
-                >{{ task.id }} {{ task.name }}</span
-              >
+              <router-link :to="'/tickets/' + t.id">
+                #{{ t.id }} {{ t.name }}
+              </router-link>
             </li>
           </ul>
         </div>
       </nav>
       <table class="table col-md-6" style="margin: 20px">
+        <h1 class="h1">{{ taskName }}</h1>
         <h2 class="h4">Details:</h2>
         <table class="table">
           <tbody>
             <tr>
               <th scope="col">ステータス</th>
-              <td>{{ task.status != "" ? task.status : "Open" }}</td>
+              <td>{{ taskStatus != "" ? taskStatus : "Open" }}</td>
               <th scope="col">期日</th>
-              <td>{{ task.dueDate != "" ? task.dueDate : "-" }}</td>
+              <td>{{ taskDueDate != "" ? taskDueDate : "-" }}</td>
             </tr>
           </tbody>
         </table>
         <h2 class="h4">Description & Activity:</h2>
         <main role="main" class="col-md-12">
           <div>
-            <vue-simplemde v-model="task.body" ref="markdownEditor" />
+            <vue-simplemde v-model="taskBody" ref="markdownEditor" />
           </div>
         </main>
       </table>
@@ -66,6 +68,10 @@ export default {
   data() {
     return {
       content: "",
+      taskName: "",
+      taskDueDate: "",
+      taskStatus: "",
+      taskBody: "",
       task: {},
     };
   },
@@ -73,7 +79,10 @@ export default {
   created() {
     this.$store.state.tasks.forEach((t) => {
       if (t.id == this.$route.params.id) {
-        this.task = t;
+        this.taskName = t.name;
+        this.taskDueDate = t.dueDate;
+        this.taskStatus = t.status;
+        this.taskBody = t.body;
       }
     });
   },
@@ -81,13 +90,19 @@ export default {
   mounted() {
     this.$refs.markdownEditor.simplemde.togglePreview();
   },
+
   methods: {
     onClickTicketItem(t) {
-      this.$store.state.tasks.forEach((t) => {
-        if (t.id == this.$route.params.id) {
-          this.task = t;
-        }
-      });
+      if (this.$refs.markdownEditor.simplemde.isPreviewActive()) {
+        this.$refs.markdownEditor.simplemde.togglePreview();
+      }
+      this.taskName = t.name;
+      this.taskDueDate = t.dueDate;
+      this.taskStatus = t.status;
+      this.taskBody = t.body;
+      if (!this.$refs.markdownEditor.simplemde.isPreviewActive()) {
+        this.$refs.markdownEditor.simplemde.togglePreview();
+      }
     },
   },
 };

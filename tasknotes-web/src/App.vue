@@ -48,27 +48,31 @@ export default {
   metaInfo: {
     meta: [
       {
-        property: 'og:site_name',
-        content: 'task.Notes'
+        property: "title",
+        content: "task.Notes",
       },
       {
-        property: 'og:type',
-        content: 'website'
+        property: "og:site_name",
+        content: "task.Notes",
       },
       {
-        property: 'og:description',
-        content: 'タスクはもっと気軽に作れても良い'
+        property: "og:type",
+        content: "website",
       },
       {
-        property: 'og:image',
-        content: 'https://tasknotes.nklab.dev/tasknote_og.png'
+        property: "og:description",
+        content: "タスクはもっと気軽に作れても良い",
+      },
+      {
+        property: "og:image",
+        content: "https://tasknotes.nklab.dev/tasknote_og.png",
       },
 
       {
-        name: 'twitter:card',
-        content: 'https://tasknotes.nklab.dev/tasknote_og.png'
-      }
-    ]
-  }
+        name: "twitter:card",
+        content: "https://tasknotes.nklab.dev/tasknote_og.png",
+      },
+    ],
+  },
 };
 </script>
