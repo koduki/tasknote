@@ -6,8 +6,11 @@ steps:
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args: ['-c', "
-    echo VUE_APP_API_BASE_URL=none > .env.production 
+    echo VUE_APP_API_BASE_URL=none > .env.production && 
+    gcloud secrets versions access latest --secret=VUE_APP_AUTH_API_DOMAIN|(read x; echo VUE_APP_AUTH_API_DOMAIN=$x  ) >> .env.production &&
+    gcloud secrets versions access latest --secret=VUE_APP_AUTH_API_KEY|(read x;    echo VUE_APP_AUTH_API_KEY=$x     ) >> .env.production
     " ]
+  dir: 'tasknotes-web/'
 - name: node
   entrypoint: yarn
   args: ['run', 'prod-build']
