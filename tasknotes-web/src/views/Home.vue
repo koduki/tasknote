@@ -112,7 +112,8 @@ export default {
             if (item.type.indexOf("image") != -1) {
               event.preventDefault();
 
-              const uri = process.env.VUE_APP_API_BASE_URL + "/tasks/image";
+              const host = process.env.VUE_APP_API_BASE_URL;
+              const uri = (host == "none" ? "" : host) + "/tasks/image";
 
               const data = new FormData();
               data.append("file", file);
