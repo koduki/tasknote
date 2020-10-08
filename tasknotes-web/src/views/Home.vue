@@ -7,7 +7,16 @@
       :is-full-page="fullPage"
     ></loading>
     <div class="align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <h1 class="h2">edit-mode</h1>
+      <div>
+        <b-button variant="success" style="margin: 5px">
+          <router-link to="/home" style="color: white">Edit Mode</router-link>
+        </b-button>
+        <b-button style="margin: 5px">
+          <router-link to="/tickets" style="color: white"
+            >Ticket Mode</router-link
+          >
+        </b-button>
+      </div>
     </div>
 
     <div class="row">

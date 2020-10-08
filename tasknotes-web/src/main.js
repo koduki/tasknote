@@ -21,6 +21,10 @@ Vue.component('b-carousel', BCarousel)
 import { BCarouselSlide } from 'bootstrap-vue'
 Vue.component('b-carousel-slide', BCarouselSlide)
 
+// Meta tag generator
+import Meta from 'vue-meta';
+Vue.use(Meta);
+
 Vue.config.productionTip = false
 
 // Auth

@@ -1,7 +1,16 @@
 <template>
   <div class="container" style="text-align: left">
     <div class="align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <h1 class="h2">{{ task.name }}</h1>
+      <div>
+        <b-button style="margin: 5px">
+          <router-link to="/home" style="color: white">Edit Mode</router-link>
+        </b-button>
+        <b-button variant="success" style="margin: 5px">
+          <router-link to="/tickets" style="color: white"
+            >Ticket Mode</router-link
+          >
+        </b-button>
+      </div>
     </div>
 
     <h2 class="h4">Details:</h2>
@@ -9,9 +18,9 @@
       <tbody>
         <tr>
           <th scope="col">ステータス</th>
-          <td>{{ (task.status != "") ? task.status : "Open"}}</td>
+          <td>{{ task.status != "" ? task.status : "Open" }}</td>
           <th scope="col">期日</th>
-          <td>{{ (task.dueDate != "") ? task.dueDate : "-" }}</td>
+          <td>{{ task.dueDate != "" ? task.dueDate : "-" }}</td>
         </tr>
       </tbody>
     </table>
