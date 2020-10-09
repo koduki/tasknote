@@ -49,7 +49,7 @@
         <h2 class="h4">Description & Activity:</h2>
         <main role="main" class="col-md-12">
           <div>
-            <vue-simplemde v-model="taskBody" ref="markdownEditor" />
+            <div class="wrapper" v-html="this.previewText"></div>
           </div>
         </main>
       </table>
@@ -59,6 +59,7 @@
 
 <script>
 import VueSimplemde from "vue-simplemde";
+import marked from "marked";
 
 export default {
   name: "Ticket",
@@ -75,7 +76,20 @@ export default {
       task: {},
     };
   },
-
+  computed: {
+    previewText() {
+      marked.setOptions({
+        renderer: new marked.Renderer(),
+        gfm: true,
+        tables: true,
+        breaks: true,
+        pedantic: false,
+        smartLists: true,
+        smartypants: false,
+      });
+      return marked(this.taskBody);
+    },
+  },
   created() {
     this.$store.state.tasks.forEach((t) => {
       if (t.id == this.$route.params.id) {
@@ -87,22 +101,12 @@ export default {
     });
   },
 
-  mounted() {
-    this.$refs.markdownEditor.simplemde.togglePreview();
-  },
-
   methods: {
     onClickTicketItem(t) {
-      if (this.$refs.markdownEditor.simplemde.isPreviewActive()) {
-        this.$refs.markdownEditor.simplemde.togglePreview();
-      }
       this.taskName = t.name;
       this.taskDueDate = t.dueDate;
       this.taskStatus = t.status;
       this.taskBody = t.body;
-      if (!this.$refs.markdownEditor.simplemde.isPreviewActive()) {
-        this.$refs.markdownEditor.simplemde.togglePreview();
-      }
     },
   },
 };

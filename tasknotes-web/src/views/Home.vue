@@ -39,11 +39,11 @@
 
       <main role="main" class="col-md-8">
         <div>
+          <div class="updated_timestamp">AUTO</div>
           <vue-simplemde
             v-model="content"
             ref="markdownEditor"
             @input="onInputText"
-            @initialized="onInitializedEditor"
           />
         </div>
       </main>
@@ -56,6 +56,9 @@ import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/vue-loading.css";
 import VueSimplemde from "vue-simplemde";
 import Auth from "@/modules/auth";
+import Task from "@/modules/task";
+import TaskNoteAPI from "@/modules/task_note_api";
+import Template from "@/modules/template";
 
 export default {
   name: "Home",
@@ -70,217 +73,84 @@ export default {
       timer: "",
       content: "",
       prevContent: "",
-      user() {
-        return Auth.user();
-      },
     };
   },
   created() {
-    this.content = this.parseToContent(this.$store.state.tasks);
+    this.content = Task.toContent(this.$store.state.tasks);
     if (this.content == "") {
-      this.content = `# ここにタスク名
-## meta
-- due_date:2020/12/31
-- status:Closed
-
-## body
-### ここにコンテンツ。
-![image.png](https://storage.googleapis.com/ajfgeay8733/image/bb0c1b12-b2bc-4443-bbe3-9dd12870a2c1.png)
-
-# タスク２
-
-## body
-* アイテム１
-
-# タスク3
-## meta
-- due_date:2020/12/31
-
-## body
-ここにコンテンツ。
-`;
+      this.content = Template.defaultEditorContents();
     }
 
-    this.load();
+    TaskNoteAPI.callLoad((response) => {
+      this.content = response.data.text;
+      const tasks = Task.parse(response.data.text);
+      this.$store.dispatch("updateTasks", tasks);
+    });
     this.timer = setInterval(this.autosave, 5 * 1000);
+  },
+  mounted() {
+    // regist paste event
+    document
+      .getElementsByClassName("vue-simplemde")[0]
+      .addEventListener("paste", this.onPasteImage);
   },
   beforeDestroy() {
     clearInterval(this.timer);
   },
   methods: {
-    onInitializedEditor() {
-      console.log("onInitializedEditor");
-
-      // regist paste event
+    insertText(term) {
       const editor = this.$refs.markdownEditor.simplemde;
-      document
-        .getElementsByClassName("vue-simplemde")[0]
-        .addEventListener("paste", (event) => {
-          console.log(event);
 
-          const items = event.clipboardData.items;
-          for (var i = 0; i < items.length; i++) {
-            const item = items[i];
-            const file = item.getAsFile();
-            if (item.type.indexOf("image") != -1) {
-              event.preventDefault();
+      const cm = editor.codemirror;
+      var startPoint = cm.getCursor("start");
+      var endPoint = cm.getCursor("end");
 
-              const host = process.env.VUE_APP_API_BASE_URL;
-              const uri = (host == "none" ? "" : host) + "/tasks/image";
+      cm.replaceSelection(term);
+      cm.setSelection(startPoint, endPoint);
+      cm.focus();
+    },
 
-              const data = new FormData();
-              data.append("file", file);
-              const config = {
-                headers: {
-                  Authorization: "Bearer " + this.user().token,
-                },
-              };
-              this.isLoading = true;
-              this.axios
-                .post(uri, data, config)
-                .then((response) => {
-                  const cm = editor.codemirror;
-                  var startPoint = cm.getCursor("start");
-                  var endPoint = cm.getCursor("end");
+    onPasteImage(event) {
+      console.log(event);
 
-                  const term = "![image.png](" + response.data.url + ")";
-                  cm.replaceSelection(term);
-                  cm.setSelection(startPoint, endPoint);
-                  cm.focus();
-                  this.isLoading = false;
-                })
-                .catch((error) => {
-                  this.isLoading = false;
-                  console(
-                    `status: ${error.response.status}, message: ${error.response.data}`
-                  );
-                });
+      const items = event.clipboardData.items;
+      for (var i = 0; i < items.length; i++) {
+        const item = items[i];
+        const file = item.getAsFile();
+        if (item.type.indexOf("image") != -1) {
+          event.preventDefault();
+          this.isLoading = true;
+          TaskNoteAPI.callUploadImage(
+            file,
+            (response) => {
+              this.insertText("![image.png](" + response.data.url + ")");
+              this.isLoading = false;
+            },
+            (error) => {
+              this.isLoading = false;
             }
-          }
-        });
-
-      console.log(this.$refs.markdownEditor.simplemde);
-    },
-    parseToContent(tasks) {
-      return tasks
-        .map((t) => {
-          let name = "# " + t.name;
-          let meta =
-            t.dueDate != "" || t.status != ""
-              ? "\n## meta\n" +
-                "- due_date:" +
-                t.dueDate +
-                "\n" +
-                "- status:" +
-                t.status
-              : "";
-          let body = "\n## body\n" + t.body;
-          return name + "\n" + meta + "\n" + body.replace(/\n$/, "");
-        })
-        .join("\n")
-        .replace(/\n\n+/g, "\n\n");
-    },
-    parseToTask(content) {
-      let lines = content.toString().split("\n");
-      let tasks = [];
-      let name = "";
-      let isMeta = false;
-      let dueDate = "";
-      let status = "";
-      let body = null;
-      let id = 0;
-      lines.forEach((line) => {
-        // console.log(line);
-
-        if (line.trim().match("^# ")) {
-          if (body != null) {
-            id++;
-            let task = {
-              id: id,
-              name: name,
-              dueDate: dueDate,
-              status: status,
-              body: body,
-            };
-            tasks.push(task);
-          }
-          name = line.trim().replace(/^# /, "");
-          body = null;
-          dueDate = "";
-          status = "";
-        } else if (line.trim().match("^## meta$")) {
-          isMeta = true;
-        } else if (
-          isMeta &&
-          (line.trim().match("^- due_date:") ||
-            line.trim().match("^\\* due_date:"))
-        ) {
-          dueDate = line.split("due_date:")[1].trim();
-        } else if (
-          isMeta &&
-          (line.trim().match("^- status:") || line.trim().match("^\\* status:"))
-        ) {
-          status = line.split("status:")[1].trim();
-        } else if (line.trim().match("^## body$")) {
-          isMeta = false;
-          body = "";
-        } else if (body != null) {
-          body += line + "\n";
+          );
         }
-      });
-      id++;
-      tasks.push({
-        id: id,
-        name: name,
-        dueDate: dueDate,
-        status: status,
-        body: body,
-      });
-
-      return tasks;
+      }
     },
+
     autosave() {
       if (this.prevContent != this.content) {
         this.prevContent = this.content;
-
-        const host = process.env.VUE_APP_API_BASE_URL;
-        const uri = (host == "none" ? "" : host) + "/tasks/save";
-        const data = { text: this.content };
-
-        const config = {
-          headers: {
-            Authorization: "Bearer " + this.user().token,
-          },
-        };
-        this.axios.post(uri, data, config).then((response) => {
+        TaskNoteAPI.callSave((response) => {
           console.log(response.data);
-        });
+          document.getElementsByClassName("updated_timestamp")[0].textContent="Last saved: " + new Date();
+        }, this.content);
       } else {
         console.log("skip autosave");
       }
     },
-    load() {
-      const host = process.env.VUE_APP_API_BASE_URL;
-      const uri = (host == "none" ? "" : host) + "/tasks/load";
 
-      const config = {
-        headers: {
-          Authorization: "Bearer " + this.user().token,
-        },
-      };
-      this.axios.get(uri, config).then((response) => {
-        this.content = response.data.text;
-        let tasks = this.parseToTask(this.content);
-        this.$store.dispatch("updateTasks", tasks);
-      });
-    },
     onInputText() {
-      let tasks = this.parseToTask(this.content);
+      let tasks = Task.parse(this.content);
       this.$store.dispatch("updateTasks", tasks);
     },
-    onPaste(event) {
-      console.log("on paste", event);
-    },
+
     onCancel: function () {
       console.log("User cancelled the loader.");
     },
