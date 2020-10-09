@@ -8,17 +8,18 @@
           <img src="/banner.png" />
         </router-link>
       </h5>
-      <div v-show="$store.state.user.id">
-        <a class="btn" href="#">
-          <img
-            class=".avatar"
-            :src="$store.state.user.pic"
-            width="32px"
-            height="32px"
-            alt
-          />
-        </a>
-      </div>
+      <b-button
+        id="show-btn"
+        @click="$bvModal.show('bv-modal-profile')"
+        variant="link"
+        v-show="this.user().id"
+      >
+        <img :src="this.user().pic" width="32px" height="32px" />
+      </b-button>
+      <b-modal id="bv-modal-profile" hide-footer>
+        <template v-slot:modal-title>ログアウト</template>
+        <b-button class="mt-3" block @click="logout()">Logout</b-button>
+      </b-modal>
     </div>
     <router-view />
   </div>
@@ -44,6 +45,9 @@
 </style>
 
 <script>
+import VueSimplemde from "vue-simplemde";
+import Auth from "@/modules/auth";
+
 export default {
   metaInfo: {
     meta: [
@@ -73,6 +77,20 @@ export default {
         content: "https://tasknotes.nklab.dev/tasknote_og.png",
       },
     ],
+  },
+  data() {
+    return {
+      user() {
+        return Auth.user();
+      },
+    };
+  },
+  methods: {
+    logout() {
+      const self = this;
+      this.$bvModal.hide("bv-modal-profile");
+      Auth.logout(() => self.$router.push("/"));
+    },
   },
 };
 </script>

@@ -55,6 +55,7 @@
 import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/vue-loading.css";
 import VueSimplemde from "vue-simplemde";
+import Auth from "@/modules/auth";
 
 export default {
   name: "Home",
@@ -69,6 +70,9 @@ export default {
       timer: "",
       content: "",
       prevContent: "",
+      user() {
+        return Auth.user();
+      },
     };
   },
   created() {
@@ -128,7 +132,7 @@ export default {
               data.append("file", file);
               const config = {
                 headers: {
-                  Authorization: "Bearer " + this.$store.state.user.token,
+                  Authorization: "Bearer " + this.user().token,
                 },
               };
               this.isLoading = true;
@@ -245,7 +249,7 @@ export default {
 
         const config = {
           headers: {
-            Authorization: "Bearer " + this.$store.state.user.token,
+            Authorization: "Bearer " + this.user().token,
           },
         };
         this.axios.post(uri, data, config).then((response) => {
@@ -256,14 +260,12 @@ export default {
       }
     },
     load() {
-      console.log("a");
-      console.log(process.env.VUE_APP_API_BASE_URL);
       const host = process.env.VUE_APP_API_BASE_URL;
       const uri = (host == "none" ? "" : host) + "/tasks/load";
 
       const config = {
         headers: {
-          Authorization: "Bearer " + this.$store.state.user.token,
+          Authorization: "Bearer " + this.user().token,
         },
       };
       this.axios.get(uri, config).then((response) => {
