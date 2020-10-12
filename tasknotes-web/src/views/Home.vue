@@ -55,7 +55,6 @@
 import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/vue-loading.css";
 import VueSimplemde from "vue-simplemde";
-import Auth from "@/modules/auth";
 import Task from "@/modules/task";
 import TaskNoteAPI from "@/modules/task_note_api";
 import Template from "@/modules/template";
