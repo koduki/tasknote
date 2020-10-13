@@ -28,7 +28,7 @@
               v-for="task in this.$store.state.tasks"
               :key="task._id"
             >
-              <a class="nav-link" href=".">
+              <a class="nav-link" href="." @click="onItemClick">
                 <b-icon icon="clipboard-check"></b-icon>
                 {{ task.name }}
               </a>
@@ -39,7 +39,7 @@
 
       <main role="main" class="col-md-8">
         <div>
-          <div class="updated_timestamp">AUTO</div>
+          <div class="updated_timestamp"></div>
           <vue-simplemde
             v-model="content"
             ref="markdownEditor"
@@ -72,6 +72,7 @@ export default {
       timer: "",
       content: "",
       prevContent: "",
+      headersPos: [],
     };
   },
   created() {
@@ -81,9 +82,24 @@ export default {
     }
 
     TaskNoteAPI.callLoad((response) => {
+      const codeMirror = document.getElementsByClassName("CodeMirror")[0];
+      const orignH = codeMirror.style.height;
+      codeMirror.style.height = "auto";
+
       this.content = response.data.text;
       const tasks = Task.parse(response.data.text);
       this.$store.dispatch("updateTasks", tasks);
+
+      let xs = [];
+      document.getElementsByClassName("cm-header cm-header-1").forEach((x) => {
+        const top = x.getBoundingClientRect().top - 287;
+        if (!xs.includes(top)) {
+          xs.push(top);
+        }
+      });
+      this.headersPos = xs;
+      console.log(xs);
+      codeMirror.style.height = "800px";
     });
     this.timer = setInterval(this.autosave, 5 * 1000);
   },
@@ -108,7 +124,17 @@ export default {
       cm.setSelection(startPoint, endPoint);
       cm.focus();
     },
+    onItemClick(event) {
+      event.preventDefault();
+      const target = event.target;
+      const index = [].slice
+        .call(document.getElementsByClassName("nav-link"))
+        .indexOf(target);
 
+      document.getElementsByClassName(
+        "CodeMirror-vscrollbar"
+      )[0].scrollTop = this.headersPos[index];
+    },
     onPasteImage(event) {
       console.log(event);
 
@@ -138,7 +164,8 @@ export default {
         this.prevContent = this.content;
         TaskNoteAPI.callSave((response) => {
           console.log(response.data);
-          document.getElementsByClassName("updated_timestamp")[0].textContent="Last saved: " + new Date();
+          document.getElementsByClassName("updated_timestamp")[0].textContent =
+            "Last saved: " + new Date();
         }, this.content);
       } else {
         console.log("skip autosave");
@@ -159,4 +186,10 @@ export default {
 
 <style>
 @import "~simplemde/dist/simplemde.min.css";
+</style>
+
+<style>
+.CodeMirror {
+  height: auto;
+}
 </style>
