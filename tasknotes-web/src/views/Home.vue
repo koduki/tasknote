@@ -38,11 +38,18 @@
       </nav>
 
       <main role="main" class="col-md-8">
-        <div>
+        <div id="markdownEditor">
           <div class="updated_timestamp"></div>
           <vue-simplemde
             v-model="content"
             ref="markdownEditor"
+            @input="onInputText"
+          />
+        </div>
+        <div id="mirrorEditor" hidden="true">
+          <vue-simplemde
+            v-model="content"
+            ref="mirrorEditor"
             @input="onInputText"
           />
         </div>
@@ -72,7 +79,6 @@ export default {
       timer: "",
       content: "",
       prevContent: "",
-      headersPos: [],
     };
   },
   created() {
@@ -82,26 +88,11 @@ export default {
     }
 
     TaskNoteAPI.callLoad((response) => {
-      const codeMirror = document.getElementsByClassName("CodeMirror")[0];
-      const orignH = codeMirror.style.height;
-      codeMirror.style.height = "auto";
-
       this.content = response.data.text;
       const tasks = Task.parse(response.data.text);
       this.$store.dispatch("updateTasks", tasks);
-
-      let xs = [];
-      document.getElementsByClassName("cm-header cm-header-1").forEach((x) => {
-        const top = x.getBoundingClientRect().top - 287;
-        if (!xs.includes(top)) {
-          xs.push(top);
-        }
-      });
-      this.headersPos = xs;
-      console.log(xs);
-      codeMirror.style.height = "800px";
+      this.timer = setInterval(this.autosave, 5 * 1000);
     });
-    this.timer = setInterval(this.autosave, 5 * 1000);
   },
   mounted() {
     // regist paste event
@@ -112,7 +103,33 @@ export default {
   beforeDestroy() {
     clearInterval(this.timer);
   },
+  computed: {
+    mirrorEditor() {
+      return document.getElementById("mirrorEditor");
+    },
+    markdownEditor() {
+      return document.getElementById("markdownEditor");
+    },
+  },
   methods: {
+    headersPos() {
+      const codeMirror = this.markdownEditor.getElementsByClassName(
+        "CodeMirror"
+      )[0];
+      codeMirror.style.height = "auto";
+
+      let xs = [];
+      this.markdownEditor
+        .getElementsByClassName("cm-header cm-header-1")
+        .forEach((x) => {
+          const top = x.getBoundingClientRect().top - 859 - 160;
+          if (!xs.includes(top)) {
+            xs.push(top);
+          }
+        });
+      console.log(xs);
+      return xs;
+    },
     insertText(term) {
       const editor = this.$refs.markdownEditor.simplemde;
 
@@ -131,9 +148,9 @@ export default {
         .call(document.getElementsByClassName("nav-link"))
         .indexOf(target);
 
-      document.getElementsByClassName(
+      this.markdownEditor.getElementsByClassName(
         "CodeMirror-vscrollbar"
-      )[0].scrollTop = this.headersPos[index];
+      )[0].scrollTop = this.headersPos()[index];
     },
     onPasteImage(event) {
       console.log(event);
@@ -177,6 +194,10 @@ export default {
       this.$store.dispatch("updateTasks", tasks);
     },
 
+    onInputText2() {
+      console.log();
+    },
+
     onCancel: function () {
       console.log("User cancelled the loader.");
     },
@@ -189,7 +210,7 @@ export default {
 </style>
 
 <style>
-.CodeMirror {
-  height: auto;
+#markdownEditor .CodeMirror {
+  height: 800px;
 }
 </style>
