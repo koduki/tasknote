@@ -1,11 +1,5 @@
 <template>
   <div class="container-fluid home" style="text-align: left">
-    <loading
-      :active.sync="isLoading"
-      :can-cancel="true"
-      :on-cancel="onCancel"
-      :is-full-page="fullPage"
-    ></loading>
     <div class="align-items-center pt-3 pb-2 mb-3 border-bottom">
       <div>
         <b-button variant="success" style="margin: 5px">
@@ -32,32 +26,23 @@
       </nav>
 
       <main role="main" class="col-md-8">
-        <div id="markdownEditor">
-          <div class="updated_timestamp"></div>
-          <vue-simplemde v-model="tasks.text" ref="markdownEditor" />
-        </div>
+        <markdown-editor v-model="tasks.text" />
       </main>
     </div>
   </div>
 </template>
 
 <script>
-import Loading from "vue-loading-overlay";
-import "vue-loading-overlay/dist/vue-loading.css";
-import VueSimplemde from "vue-simplemde";
-import TaskNoteAPI from "@/modules/tasknotes_api";
+import MarkdownEditor from "@/components/MarkdownEditor";
 import Tasks from "@/modules/tasks";
 
 export default {
   name: "Home",
   components: {
-    VueSimplemde,
-    loading: Loading,
+    MarkdownEditor,
   },
   data() {
     return {
-      isLoading: false,
-      fullPage: true,
       tasks: new Tasks(),
     };
   },
@@ -76,56 +61,10 @@ export default {
   beforeDestroy() {
     this.tasks.stopAutoSave();
   },
-  mounted() {
-    document
-      .getElementsByClassName("vue-simplemde")[0]
-      .addEventListener("paste", this.onPasteImage);
-  },
-  methods: {
-    insertText(term) {
-      const editor = this.$refs.markdownEditor.simplemde;
 
-      const cm = editor.codemirror;
-      var startPoint = cm.getCursor("start");
-      var endPoint = cm.getCursor("end");
-
-      cm.replaceSelection(term);
-      cm.setSelection(startPoint, endPoint);
-      cm.focus();
-    },
-    onPasteImage(event) {
-      console.log(event);
-
-      const items = event.clipboardData.items;
-      for (var i = 0; i < items.length; i++) {
-        const item = items[i];
-        const file = item.getAsFile();
-        if (item.type.indexOf("image") != -1) {
-          event.preventDefault();
-          this.isLoading = true;
-          TaskNoteAPI.callUploadImage(
-            file,
-            (response) => {
-              this.insertText("![image.png](" + response.data.url + ")");
-              this.isLoading = false;
-            },
-            (error) => {
-              this.isLoading = false;
-            }
-          );
-        }
-      }
-    },
-    onCancel: function () {
-      console.log("User cancelled the loader.");
-    },
-  },
+  methods: {},
 };
 </script>
-
-<style>
-@import "~simplemde/dist/simplemde.min.css";
-</style>
 
 <style>
 #markdownEditor .CodeMirror {

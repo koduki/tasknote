@@ -9,7 +9,6 @@ export default class {
     this.callbackForSave = null;
     this.content = "";
     this.prevContent = "";
-    console.log(this);
 
     if (this.data.length === 0) {
       this.text = Template.defaultEditorContents();
