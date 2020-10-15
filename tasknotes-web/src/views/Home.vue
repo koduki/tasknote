@@ -23,15 +23,9 @@
       <nav class="col-md-3 d-none d-md-block bg-light sidebar">
         <div class="sidebar-sticky">
           <ul class="nav flex-column">
-            <li
-              class="nav-item"
-              v-for="task in this.$store.state.tasks"
-              :key="task._id"
-            >
-              <a class="nav-link" href="." @click="onItemClick">
-                <b-icon icon="clipboard-check"></b-icon>
-                {{ task.name }}
-              </a>
+            <li class="nav-item" v-for="task in tasks.data" :key="task._id">
+              <b-icon icon="clipboard-check"></b-icon>
+              {{ task.name }}
             </li>
           </ul>
         </div>
@@ -40,18 +34,7 @@
       <main role="main" class="col-md-8">
         <div id="markdownEditor">
           <div class="updated_timestamp"></div>
-          <vue-simplemde
-            v-model="content"
-            ref="markdownEditor"
-            @input="onInputText"
-          />
-        </div>
-        <div id="mirrorEditor" hidden="true">
-          <vue-simplemde
-            v-model="content"
-            ref="mirrorEditor"
-            @input="onInputText"
-          />
+          <vue-simplemde v-model="tasks.text" ref="markdownEditor" />
         </div>
       </main>
     </div>
@@ -62,9 +45,8 @@
 import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/vue-loading.css";
 import VueSimplemde from "vue-simplemde";
-import Task from "@/modules/task";
-import TaskNoteAPI from "@/modules/task_note_api";
-import Template from "@/modules/template";
+import TaskNoteAPI from "@/modules/tasknotes_api";
+import Tasks from "@/modules/tasks";
 
 export default {
   name: "Home",
@@ -76,60 +58,30 @@ export default {
     return {
       isLoading: false,
       fullPage: true,
-      timer: "",
-      content: "",
-      prevContent: "",
+      tasks: new Tasks(),
     };
   },
   created() {
-    this.content = Task.toContent(this.$store.state.tasks);
-    if (this.content == "") {
-      this.content = Template.defaultEditorContents();
-    }
+    this.tasks.load((r1) => {
+      console.log("load");
 
-    TaskNoteAPI.callLoad((response) => {
-      this.content = response.data.text;
-      const tasks = Task.parse(response.data.text);
-      this.$store.dispatch("updateTasks", tasks);
-      this.timer = setInterval(this.autosave, 5 * 1000);
+      this.tasks.startAutoSave((r2) => {
+        console.log("save");
+
+        let item = document.getElementsByClassName("updated_timestamp")[0];
+        item.textContent = "Last saved: " + new Date();
+      });
     });
   },
+  beforeDestroy() {
+    this.tasks.stopAutoSave();
+  },
   mounted() {
-    // regist paste event
     document
       .getElementsByClassName("vue-simplemde")[0]
       .addEventListener("paste", this.onPasteImage);
   },
-  beforeDestroy() {
-    clearInterval(this.timer);
-  },
-  computed: {
-    mirrorEditor() {
-      return document.getElementById("mirrorEditor");
-    },
-    markdownEditor() {
-      return document.getElementById("markdownEditor");
-    },
-  },
   methods: {
-    headersPos() {
-      const codeMirror = this.markdownEditor.getElementsByClassName(
-        "CodeMirror"
-      )[0];
-      codeMirror.style.height = "auto";
-
-      let xs = [];
-      this.markdownEditor
-        .getElementsByClassName("cm-header cm-header-1")
-        .forEach((x) => {
-          const top = x.getBoundingClientRect().top - 859 - 160;
-          if (!xs.includes(top)) {
-            xs.push(top);
-          }
-        });
-      console.log(xs);
-      return xs;
-    },
     insertText(term) {
       const editor = this.$refs.markdownEditor.simplemde;
 
@@ -140,17 +92,6 @@ export default {
       cm.replaceSelection(term);
       cm.setSelection(startPoint, endPoint);
       cm.focus();
-    },
-    onItemClick(event) {
-      event.preventDefault();
-      const target = event.target;
-      const index = [].slice
-        .call(document.getElementsByClassName("nav-link"))
-        .indexOf(target);
-
-      this.markdownEditor.getElementsByClassName(
-        "CodeMirror-vscrollbar"
-      )[0].scrollTop = this.headersPos()[index];
     },
     onPasteImage(event) {
       console.log(event);
@@ -175,29 +116,6 @@ export default {
         }
       }
     },
-
-    autosave() {
-      if (this.prevContent != this.content) {
-        this.prevContent = this.content;
-        TaskNoteAPI.callSave((response) => {
-          console.log(response.data);
-          document.getElementsByClassName("updated_timestamp")[0].textContent =
-            "Last saved: " + new Date();
-        }, this.content);
-      } else {
-        console.log("skip autosave");
-      }
-    },
-
-    onInputText() {
-      let tasks = Task.parse(this.content);
-      this.$store.dispatch("updateTasks", tasks);
-    },
-
-    onInputText2() {
-      console.log();
-    },
-
     onCancel: function () {
       console.log("User cancelled the loader.");
     },

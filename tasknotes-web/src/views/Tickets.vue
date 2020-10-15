@@ -33,7 +33,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="task in this.tasks"
+            v-for="task in this.tasks.data"
             :key="task._id"
             draggable
             @dragstart="dragList($event, task.id)"
@@ -60,8 +60,7 @@
   </div>
 </template>
 <script>
-import Task from "@/modules/task";
-import TaskNoteAPI from "@/modules/task_note_api";
+import Tasks from "@/modules/tasks";
 
 export default {
   data() {
@@ -72,55 +71,42 @@ export default {
         status: -1,
         dueDate: -1,
       },
-      timer: "",
-      prevContent: "",
-      content: "",
+      tasks: new Tasks(),
+
       dragIndex: 0,
     };
   },
-  computed: {
-    tasks() {
-      return this.$store.state.tasks;
-    },
-  },
   created() {
-    this.timer = setInterval(this.autosave, 5 * 1000);
+    this.tasks.startAutoSave( (response) => {
+      console.log(response);
+
+      let item = document.getElementsByClassName("updated_timestamp")[0];
+      item.textContent = "Last saved: " + new Date();
+    });
   },
   beforeDestroy() {
-    clearInterval(this.timer);
+    this.tasks.stopAutoSave();
   },
   methods: {
     sortByCol(key) {
       this.togleSort[key] = this.togleSort[key] * -1;
-      this.tasks.sort(
+      this.tasks.data.sort(
         (a, b) => (a[key] < b[key] ? -1 : 1) * this.togleSort[key]
       );
     },
-    autosave() {
-      this.content = Task.toContent(this.$store.state.tasks);
-      if (this.prevContent != this.content) {
-        this.prevContent = this.content;
-        TaskNoteAPI.callSave((response) => {
-          console.log(response.data);
-          document.getElementsByClassName("updated_timestamp")[0].textContent =
-            "Last saved: " + new Date();
-        }, this.content);
-      } else {
-        console.log("skip autosave");
-      }
-    },
+
     dragList(event, id) {
       let index = this.findById(id);
       this.dragIndex = index;
     },
     dropList(event, id) {
       let index = this.findById(id);
-      this.moveTo(this.dragIndex, index, this.tasks);
+      this.moveTo(this.dragIndex, index, this.tasks.data);
     },
     findById(id) {
       let index = 0;
-      for (let i = 0; i < this.tasks.length; i++) {
-        if (this.tasks[i].id == id) {
+      for (let i = 0; i < this.tasks.data.length; i++) {
+        if (this.tasks.data[i].id == id) {
           index = i;
         }
       }

@@ -23,7 +23,7 @@
             <li
               @click="onClickTicketItem(t)"
               class="list-group-item"
-              v-for="t in this.$store.state.tasks"
+              v-for="t in this.tasks.data"
               :key="t._id"
             >
               <router-link :to="'/tickets/' + t.id">
@@ -60,6 +60,7 @@
 <script>
 import VueSimplemde from "vue-simplemde";
 import marked from "marked";
+import Tasks from "@/modules/tasks";
 
 export default {
   name: "Ticket",
@@ -73,7 +74,7 @@ export default {
       taskDueDate: "",
       taskStatus: "",
       taskBody: "",
-      task: {},
+      tasks: new Tasks(),
     };
   },
   computed: {
@@ -91,7 +92,7 @@ export default {
     },
   },
   created() {
-    this.$store.state.tasks.forEach((t) => {
+    this.tasks.data.forEach((t) => {
       if (t.id == this.$route.params.id) {
         this.taskName = t.name;
         this.taskDueDate = t.dueDate;
