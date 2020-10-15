@@ -39,7 +39,10 @@ export default class {
       if (this.prevContent != this.content) {
         this.prevContent = this.content;
         TaskNotesAPI.callSave((response) => {
-          this.callbackForSave(response.data);
+          if (this.callbackForSave != null) {
+            this.callbackForSave(response.data);
+          }
+          console.log("save");
         }, this.content);
       } else {
         console.log("skip save");
@@ -52,6 +55,7 @@ export default class {
   }
   set data(value) {
     store.dispatch("task/updateTasks", value);
+    this.content = TaskHelper.toContent(value);
   }
 
   get text() {

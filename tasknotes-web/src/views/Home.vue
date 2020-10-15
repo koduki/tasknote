@@ -51,8 +51,6 @@ export default {
       console.log("load");
 
       this.tasks.startAutoSave((r2) => {
-        console.log("save");
-
         let item = document.getElementsByClassName("updated_timestamp")[0];
         item.textContent = "Last saved: " + new Date();
       });

@@ -77,9 +77,7 @@ export default {
     };
   },
   created() {
-    this.tasks.startAutoSave( (response) => {
-      console.log(response);
-
+    this.tasks.startAutoSave((response) => {
       let item = document.getElementsByClassName("updated_timestamp")[0];
       item.textContent = "Last saved: " + new Date();
     });
@@ -94,7 +92,6 @@ export default {
         (a, b) => (a[key] < b[key] ? -1 : 1) * this.togleSort[key]
       );
     },
-
     dragList(event, id) {
       let index = this.findById(id);
       this.dragIndex = index;

@@ -35,6 +35,8 @@
       </nav>
       <table class="table col-md-6" style="margin: 20px">
         <h1 class="h1">{{ taskName }}</h1>
+        <button @click="toggleEditable">編集/保存</button>
+
         <h2 class="h4">Details:</h2>
         <table class="table">
           <tbody>
@@ -49,7 +51,12 @@
         <h2 class="h4">Description & Activity:</h2>
         <main role="main" class="col-md-12">
           <div>
-            <div class="wrapper" v-html="this.previewText"></div>
+            <div
+              v-show="!this.isEditable"
+              class="wrapper"
+              v-html="this.previewText"
+            ></div>
+            <markdown-editor v-show="this.isEditable" v-model="taskBody" />
           </div>
         </main>
       </table>
@@ -58,14 +65,14 @@
 </template>
 
 <script>
-import VueSimplemde from "vue-simplemde";
 import marked from "marked";
 import Tasks from "@/modules/tasks";
+import MarkdownEditor from "@/components/MarkdownEditor";
 
 export default {
   name: "Ticket",
   components: {
-    VueSimplemde,
+    MarkdownEditor,
   },
   data() {
     return {
@@ -75,6 +82,7 @@ export default {
       taskStatus: "",
       taskBody: "",
       tasks: new Tasks(),
+      isEditable: false,
     };
   },
   computed: {
@@ -103,6 +111,17 @@ export default {
   },
 
   methods: {
+    toggleEditable() {
+      if (this.isEditable) {
+        this.tasks.data.forEach((t) => {
+          if (t.id == this.$route.params.id) {
+            t.body = this.taskBody;
+            this.tasks.save()
+          }
+        });
+      }
+      this.isEditable = !this.isEditable;
+    },
     onClickTicketItem(t) {
       this.taskName = t.name;
       this.taskDueDate = t.dueDate;
