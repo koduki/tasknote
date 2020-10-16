@@ -65,7 +65,7 @@ export default {
 </script>
 
 <style>
-#markdownEditor .CodeMirror {
+.MarkdownEditor .CodeMirror {
   height: 800px;
 }
 </style>

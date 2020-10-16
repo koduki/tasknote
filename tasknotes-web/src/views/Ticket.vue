@@ -34,32 +34,73 @@
         </div>
       </nav>
       <table class="table col-md-6" style="margin: 20px">
-        <h1 class="h1">{{ taskName }}</h1>
-        <button @click="toggleEditable">編集/保存</button>
-
+        <h1 class="h1">
+          <span v-show="!this.isEditableName">{{ task.name }}</span>
+          <input
+            type="text"
+            width="640px"
+            v-show="this.isEditableName"
+            v-model="task.name"
+          />
+          <b-button class="mb-2">
+            <b-icon
+              icon="pencil"
+              v-show="!this.isEditableName"
+              @click="toggleEditableName"
+            ></b-icon>
+            <b-icon
+              icon="check"
+              v-show="this.isEditableName"
+              @click="toggleEditableName"
+            ></b-icon>
+          </b-button>
+        </h1>
         <h2 class="h4">Details:</h2>
         <table class="table">
           <tbody>
             <tr>
               <th scope="col">ステータス</th>
-              <td>{{ taskStatus != "" ? taskStatus : "Open" }}</td>
+              <td>
+                <span
+                  @click="toggleStatus"
+                  style="cursor: hand; cursor: pointer"
+                  >{{ task.status != "" ? task.status : "Open" }}</span
+                >
+              </td>
               <th scope="col">期日</th>
-              <td>{{ taskDueDate != "" ? taskDueDate : "-" }}</td>
+              <td>{{ task.dueDate != "" ? task.dueDate : "-" }}</td>
             </tr>
           </tbody>
         </table>
-        <h2 class="h4">Description & Activity:</h2>
+        <h2 class="h4">
+          Description & Activity:
+          <b-button size="sm" class="mb-2">
+            <b-icon
+              icon="pencil"
+              v-show="!this.isEditableBody"
+              @click="toggleEditableBody"
+            ></b-icon>
+            <b-icon
+              icon="check"
+              v-show="this.isEditableBody"
+              @click="toggleEditableBody"
+            ></b-icon>
+          </b-button>
+        </h2>
         <main role="main" class="col-md-12">
           <div>
             <div
-              v-show="!this.isEditable"
+              v-show="!this.isEditableBody"
               class="wrapper"
               v-html="this.previewText"
             ></div>
-            <markdown-editor v-show="this.isEditable" v-model="taskBody" />
+            <markdown-editor v-show="this.isEditableBody" v-model="task.body" />
           </div>
         </main>
       </table>
+    </div>
+    <div class="row">
+      <div class="updated_timestamp"></div>
     </div>
   </div>
 </template>
@@ -76,13 +117,10 @@ export default {
   },
   data() {
     return {
-      content: "",
-      taskName: "",
-      taskDueDate: "",
-      taskStatus: "",
-      taskBody: "",
       tasks: new Tasks(),
-      isEditable: false,
+      task: null,
+      isEditableName: false,
+      isEditableBody: false,
     };
   },
   computed: {
@@ -96,37 +134,52 @@ export default {
         smartLists: true,
         smartypants: false,
       });
-      return marked(this.taskBody);
+      return marked(this.task.body);
     },
   },
   created() {
     this.tasks.data.forEach((t) => {
       if (t.id == this.$route.params.id) {
-        this.taskName = t.name;
-        this.taskDueDate = t.dueDate;
-        this.taskStatus = t.status;
-        this.taskBody = t.body;
+        this.task = t;
       }
     });
   },
-
+  beforeDestroy() {
+    this.tasks.stopAutoSave();
+  },
   methods: {
-    toggleEditable() {
-      if (this.isEditable) {
-        this.tasks.data.forEach((t) => {
-          if (t.id == this.$route.params.id) {
-            t.body = this.taskBody;
-            this.tasks.save()
-          }
-        });
+    toggleEditableBody() {
+      if (this.isEditableBody) {
+        this.tasks.save(this.task);
       }
-      this.isEditable = !this.isEditable;
+      this.isEditableBody = !this.isEditableBody;
+    },
+    toggleEditableName() {
+      if (this.isEditableName) {
+        this.tasks.save(this.task);
+      }
+      this.isEditableName = !this.isEditableName;
+    },
+    toggleStatus() {
+      console.log(this.task.status);
+
+      switch (this.task.status) {
+        case "Open":
+          this.task.status = "In Progress";
+          break;
+        case "In Progress":
+          this.task.status = "Closed";
+          break;
+        case "Closed":
+          this.task.status = "Open";
+          break;
+        default:
+          this.task.status = "In Progress";
+      }
+      this.tasks.save(this.task);
     },
     onClickTicketItem(t) {
-      this.taskName = t.name;
-      this.taskDueDate = t.dueDate;
-      this.taskStatus = t.status;
-      this.taskBody = t.body;
+      this.task = t;
     },
   },
 };

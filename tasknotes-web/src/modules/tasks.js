@@ -35,7 +35,17 @@ export default class {
       });
     };
 
-    this.save = () => {
+    this.save = (task) => {
+      if (task) {
+        let xs = this.data;
+        for (let i = 0; i < xs.lentgh; i++) {
+          if (xs[i].id == task.id) {
+            xs[i] = t;
+          }
+        }
+        this.data = xs;
+      }
+
       if (this.prevContent != this.content) {
         this.prevContent = this.content;
         TaskNotesAPI.callSave((response) => {
