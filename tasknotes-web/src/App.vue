@@ -45,11 +45,11 @@
 </style>
 
 <script>
-import VueSimplemde from "vue-simplemde";
 import Auth from "@/modules/auth";
 
 export default {
   metaInfo: {
+    title: 'task.Notes',
     meta: [
       {
         property: "title",
