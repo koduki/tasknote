@@ -34,17 +34,24 @@
         </div>
       </nav>
       <table class="table col-md-6" style="margin: 20px">
-        <h1 class="h1">
-          <span v-show="!this.isEditableName">{{ task.name }}</span>
+        <h1
+          class="h1 editable-box"
+          @mouseover="onMouseover4editable($event)"
+          @mouseout="onMouseout4editable($event)"
+        >
+          <span class="editable-box-body" v-show="!this.isEditableName">
+            {{ task.name }}
+          </span>
           <input
             type="text"
             width="640px"
             v-show="this.isEditableName"
             v-model="task.name"
           />
-          <b-button class="mb-2">
+          <span class="editable-box-btn">
             <b-icon
-              icon="pencil"
+              icon="pencil-fill"
+              scale="0.5"
               v-show="!this.isEditableName"
               @click="toggleEditableName"
             ></b-icon>
@@ -53,7 +60,7 @@
               v-show="this.isEditableName"
               @click="toggleEditableName"
             ></b-icon>
-          </b-button>
+          </span>
         </h1>
         <h2 class="h4">Details:</h2>
         <table class="table">
@@ -64,37 +71,56 @@
                 <span
                   @click="toggleStatus"
                   style="cursor: hand; cursor: pointer"
-                  >{{ task.status != "" ? task.status : "Open" }}</span
                 >
+                  {{ task.status != "" ? task.status : "Open" }}
+                </span>
               </td>
               <th scope="col">期日</th>
-              <td>{{ task.dueDate != "" ? task.dueDate : "-" }}</td>
+              <td>
+                <input
+                  type="date"
+                  v-model="task.dueDate"
+                  @change="onDateChange"
+                />
+              </td>
             </tr>
           </tbody>
         </table>
-        <h2 class="h4">
-          Description & Activity:
-          <b-button size="sm" class="mb-2">
-            <b-icon
-              icon="pencil"
-              v-show="!this.isEditableBody"
-              @click="toggleEditableBody"
-            ></b-icon>
-            <b-icon
-              icon="check"
-              v-show="this.isEditableBody"
-              @click="toggleEditableBody"
-            ></b-icon>
-          </b-button>
-        </h2>
-        <main role="main" class="col-md-12">
-          <div>
-            <div
-              v-show="!this.isEditableBody"
-              class="wrapper"
-              v-html="this.previewText"
-            ></div>
-            <markdown-editor v-show="this.isEditableBody" v-model="task.body" />
+        <h2 class="h4">Description & Activity:</h2>
+        <main
+          role="main"
+          class="col-md-12 editable-box"
+          @mouseover="onMouseover4editable($event)"
+          @mouseout="onMouseout4editable($event)"
+        >
+          <div class="row">
+            <div class="editable-box-body col-md-11">
+              <div
+                v-show="!this.isEditableBody"
+                class="wrapper"
+                v-html="this.previewText"
+              ></div>
+              <markdown-editor
+                v-show="this.isEditableBody"
+                v-model="task.body"
+                height="600px"
+              />
+            </div>
+            <div class="editable-box-btn col-md-0.8" @click="onEditableBody">
+              <b-icon
+                icon="pencil-fill"
+                scale="1"
+                v-show="!this.isEditableBody"
+              ></b-icon>
+            </div>
+          </div>
+          <div class="row" style="text-align: right">
+            <div class="col-md-11" v-show="this.isEditableBody">
+              <b-button style="margin: 2px" @click="onSaveBody">Save</b-button>
+              <b-button style="margin: 2px" @click="onCancelBody"
+                >Cancel</b-button
+              >
+            </div>
           </div>
         </main>
       </table>
@@ -148,11 +174,16 @@ export default {
     this.tasks.stopAutoSave();
   },
   methods: {
-    toggleEditableBody() {
-      if (this.isEditableBody) {
-        this.tasks.save(this.task);
-      }
-      this.isEditableBody = !this.isEditableBody;
+    onEditableBody() {
+      console.log("Hello");
+      this.isEditableBody = true;
+    },
+    onSaveBody() {
+      this.tasks.save(this.task);
+      this.isEditableBody = false;
+    },
+    onCancelBody() {
+      this.isEditableBody = false;
     },
     toggleEditableName() {
       if (this.isEditableName) {
@@ -178,9 +209,53 @@ export default {
       }
       this.tasks.save(this.task);
     },
+    onDateChange() {
+      this.tasks.save(this.task);
+    },
+    onMouseover4editable(event) {
+      if (!this.isEditableBody) {
+        let parent = event.target;
+        while (!parent.classList.contains("editable-box")) {
+          parent = parent.parentElement;
+        }
+
+        const target = parent.getElementsByClassName("editable-box-body")[0];
+        target.classList.add("active");
+
+        const btn = parent.getElementsByClassName("editable-box-btn")[0];
+        btn.style.display = "unset";
+      }
+    },
+    onMouseout4editable(event) {
+      let parent = event.target;
+      while (!parent.classList.contains("editable-box")) {
+        parent = parent.parentElement;
+      }
+
+      const target = parent.getElementsByClassName("editable-box-body")[0];
+      target.classList.remove("active");
+
+      const btn = parent.getElementsByClassName("editable-box-btn")[0];
+      btn.style.display = "none";
+    },
     onClickTicketItem(t) {
       this.task = t;
     },
   },
 };
 </script>
+<style>
+.editable-box-body.active {
+  border: 1px solid #ccc;
+  padding-right: 50px;
+  padding-top: 3px;
+  padding-bottom: 2px;
+}
+.editable-box-btn {
+  background-color: lightgrey;
+  padding: 4px;
+  cursor: hand;
+  cursor: pointer;
+  display: none;
+}
+</style>

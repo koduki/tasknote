@@ -24,6 +24,9 @@ export default {
     value: {
       type: String,
     },
+    height: {
+      type: String,
+    },
   },
   components: {
     VueSimplemde,
@@ -50,6 +53,8 @@ export default {
     document
       .getElementsByClassName("vue-simplemde")[0]
       .addEventListener("paste", this.onPasteImage);
+    console.log(this.height)
+    document.getElementsByClassName("CodeMirror")[0].style.height = this.height;
   },
   methods: {
     insertText(term) {
@@ -98,6 +103,7 @@ export default {
 </style>
 
 <style>
-#markdownEditor .CodeMirror {
-  height: 800px;
+.wrapper img {
+  width: 640px;
 }
+</style>

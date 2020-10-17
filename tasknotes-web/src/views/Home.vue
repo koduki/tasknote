@@ -26,7 +26,7 @@
       </nav>
 
       <main role="main" class="col-md-8">
-        <markdown-editor v-model="tasks.text" />
+        <markdown-editor v-model="tasks.text" height="800px" />
       </main>
     </div>
   </div>
