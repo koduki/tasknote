@@ -27,6 +27,9 @@ export default {
     height: {
       type: String,
     },
+    outerHeight: {
+      type: String,
+    },
   },
   components: {
     VueSimplemde,
@@ -53,10 +56,28 @@ export default {
     document
       .getElementsByClassName("vue-simplemde")[0]
       .addEventListener("paste", this.onPasteImage);
-    console.log(this.height)
     document.getElementsByClassName("CodeMirror")[0].style.height = this.height;
+
+    const toolbar = document
+      .getElementsByClassName("editor-toolbar")[0]
+      .getBoundingClientRect();
+    const statusbar = document
+      .getElementsByClassName("editor-statusbar")[0]
+      .getBoundingClientRect();
+    const space = toolbar.top + toolbar.height + statusbar.height + 130;
+    console.log(this.outerHeight);
+    const outerHeight =
+      this.outerHeight === "auto"
+        ? window.outerHeight - space + "px"
+        : this.outerHeight;
+    console.log(outerHeight);
+    this.get("CodeMirror-wrap").style.height = outerHeight;
+    this.get("CodeMirror-vscrollbar").style.height = outerHeight;
   },
   methods: {
+    get(cssQuery) {
+      return document.getElementsByClassName(cssQuery)[0];
+    },
     insertText(term) {
       const editor = this.$refs.markdownEditor.simplemde;
 
@@ -105,5 +126,8 @@ export default {
 <style>
 .wrapper img {
   width: 640px;
+}
+.CodeMirror {
+  resize: both;
 }
 </style>

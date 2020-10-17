@@ -103,7 +103,8 @@
               <markdown-editor
                 v-show="this.isEditableBody"
                 v-model="task.body"
-                height="600px"
+                height="400px"
+                outerHeight="400px"
               />
             </div>
             <div class="editable-box-btn col-md-0.8" @click="onEditableBody">
@@ -175,7 +176,6 @@ export default {
   },
   methods: {
     onEditableBody() {
-      console.log("Hello");
       this.isEditableBody = true;
     },
     onSaveBody() {
@@ -214,32 +214,28 @@ export default {
     },
     onMouseover4editable(event) {
       if (!this.isEditableBody) {
-        let parent = event.target;
-        while (!parent.classList.contains("editable-box")) {
-          parent = parent.parentElement;
-        }
-
-        const target = parent.getElementsByClassName("editable-box-body")[0];
-        target.classList.add("active");
-
-        const btn = parent.getElementsByClassName("editable-box-btn")[0];
-        btn.style.display = "unset";
+        const box = this.findEditableBox(event.target);
+        box.body.classList.add("active");
+        box.btn.style.display = "unset";
       }
     },
     onMouseout4editable(event) {
-      let parent = event.target;
-      while (!parent.classList.contains("editable-box")) {
-        parent = parent.parentElement;
-      }
-
-      const target = parent.getElementsByClassName("editable-box-body")[0];
-      target.classList.remove("active");
-
-      const btn = parent.getElementsByClassName("editable-box-btn")[0];
-      btn.style.display = "none";
+      const box = this.findEditableBox(event.target);
+      box.body.classList.remove("active");
+      box.btn.style.display = "none";
     },
     onClickTicketItem(t) {
       this.task = t;
+    },
+    findEditableBox(node) {
+      while (!node.classList.contains("editable-box")) {
+        node = node.parentElement;
+      }
+
+      return {
+        body: node.getElementsByClassName("editable-box-body")[0],
+        btn: node.getElementsByClassName("editable-box-btn")[0],
+      };
     },
   },
 };
