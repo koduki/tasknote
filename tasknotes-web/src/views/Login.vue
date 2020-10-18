@@ -55,7 +55,7 @@
     </section>
 
     <!-- Features -->
-    <section class="">
+    <section>
       <video
         width="720px"
         height="480px"
@@ -69,7 +69,55 @@
       >
         <p>動画を再生するにはvideoタグをサポートしたブラウザが必要です。</p>
       </video>
-      <!-- / .container -->
+    </section>
+
+    <!-- Features -->
+    <section style="margin-top: 50px">
+      <div class="container text-md-left">
+        <h2 class="display-5">使い方</h2>
+        <div>
+          <p>通常のMarkdownエディタ。基本的な機能は以下の通り</p>
+          <ul>
+            <li><strong>#</strong>によるH1要素をタスクのタイトルとして判定</li>
+            <li>
+              マジックキーワード<strong>## meta</strong> 以下に<strong
+                >- status:</strong
+              >と<strong>- due_date:</strong>を記述できる。これらは省略可
+            </li>
+            <li>
+              マジックキーワード <strong>## body</strong>以降を本文として認識
+            </li>
+            <li>画像を貼付けると自動アップロード</li>
+            <li>コンテンツは定期的に自動保存される</li>
+            <li>
+              チケットモードでは並べ替えや個別チケットの編集、及びステータスの変更などが出来る
+            </li>
+          </ul>
+          <strong>サンプル:</strong>
+          <pre style="background-color: lightgray; padding: 10px; width: 900px">
+# ここにタスク名
+## meta
+- due_date:2020-12-31
+- status:Closed
+
+## body
+### ここにコンテンツ。
+![image.png](https://storage.googleapis.com/ajfgeay8733/image/bb0c1b12-b2bc-4443-bbe3-9dd12870a2c1.png)
+
+# タスク２
+
+## body
+* アイテム１
+
+# タスク3
+## meta
+- due_date:2020/12/31
+
+## body
+ここにコンテンツ。
+          </pre>
+        </div>
+      </div>
     </section>
 
     <footer role="contentinfo" class="py-6 lh-1 bg-white">

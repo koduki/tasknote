@@ -51,14 +51,23 @@ export default {
     };
   },
   created() {
-    this.tasks.load((r1) => {
-      console.log("load");
+    this.tasks.load(
+      () => {
+        console.log("load");
 
-      this.tasks.startAutoSave((r2) => {
-        let item = document.getElementsByClassName("updated_timestamp")[0];
-        item.textContent = "Last saved: " + new Date();
-      });
-    });
+        this.tasks.startAutoSave((r2) => {
+          let item = document.getElementsByClassName("updated_timestamp")[0];
+          item.textContent = "Last saved: " + new Date();
+        });
+      },
+      () => {
+        console.log("skip load");
+        this.tasks.startAutoSave((r2) => {
+          let item = document.getElementsByClassName("updated_timestamp")[0];
+          item.textContent = "Last saved: " + new Date();
+        });
+      }
+    );
   },
   beforeDestroy() {
     this.tasks.stopAutoSave();

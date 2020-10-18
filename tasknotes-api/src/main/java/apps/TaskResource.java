@@ -1,5 +1,6 @@
 package apps;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.StorageOptions;
@@ -67,7 +68,7 @@ public class TaskResource {
 
         storage.create(blobInfo, md.getBytes());
 
-        System.out.println(new Date() + ": autosave");
+        System.out.println(new Date() + ": save");
         return Response.ok(Map.of("message", "success"))
                 .build();
     }
@@ -76,19 +77,27 @@ public class TaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/load")
-    public TaskDocument load(@Context SecurityContext ctx) throws IOException {
+    public Response load(@Context SecurityContext ctx) throws IOException {
         var userId = ctx.getUserPrincipal().getName();
 
         var storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
         var blobId = BlobId.of(dataBucket, userId + "/" + "tasks.md");
 
-        var output = new ByteArrayOutputStream();
-        storage.get(blobId).downloadTo(output);
+        if (storage.get(blobId) != null) {
+            var output = new ByteArrayOutputStream();
+            storage.get(blobId).downloadTo(output);
 
-        var md = new String(output.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
+            var md = new String(output.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
 
-        System.out.println(new Date() + ": autosave");
-        return new TaskDocument(md);
+            return Response.
+                    ok(new ObjectMapper().writeValueAsString(new TaskDocument(md)))
+                    .build();
+        } else {
+            System.out.println(new Date() + ": init data");
+            return Response
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
+        }
     }
 
     @GET

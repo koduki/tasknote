@@ -28,11 +28,11 @@ export default class {
       clearInterval(this.timer);
     };
 
-    this.load = (callback) => {
+    this.load = (callback, errorHandling) => {
       TaskNotesAPI.callLoad((response) => {
         this.text = response.data.text;
-        callback(response);
-      });
+        callback();
+      }, errorHandling);
     };
 
     this.save = (task) => {
