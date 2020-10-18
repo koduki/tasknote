@@ -13,11 +13,11 @@
             <!-- Text -->
             <div class="lead text-center text-md-left text-muted mb-6 mb-lg-8">
               <p>
-                JIRAやREDMINEのようなチケット管理は便利ですが、ちょっと作るのが大変ですよね。
+                JIRAやREDMINEのようなチケット管理は便利ですが、ちょっとタスクを作るのに気構えちゃいますよね。
               </p>
               <p>
-                Markdownで作ったメモを簡単にチケット風のタスク管理できるツールです。<br />
-                メモとタスクの境目を無くしていましょう！
+                task.NotesはMarkdownで作ったメモを簡単にチケット風のタスク管理できるツールです。<br />
+                メモとタスクの境目を気軽に超えていきましょう！
               </p>
             </div>
           </div>

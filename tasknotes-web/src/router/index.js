@@ -4,6 +4,7 @@ import Login from "@/views/Login.vue";
 import Home from "@/views/Home.vue";
 import Tickets from "@/views/Tickets.vue";
 import Ticket from "@/views/Ticket.vue";
+import NotFound from "@/views/NotFound.vue";
 
 // store
 import Store from "@/store";
@@ -34,6 +35,11 @@ const routes = [
     component: Ticket,
     meta: { requiresAuth: true },
   },
+  {
+    path: '*',
+    name: "error404",
+    component: NotFound,
+  }
 ];
 
 const router = new VueRouter({

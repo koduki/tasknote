@@ -49,15 +49,19 @@ import Auth from "@/modules/auth";
 
 export default {
   metaInfo: {
-    title: 'task.Notes',
+    title: "task.Notes",
     meta: [
-      {
-        property: "title",
-        content: "task.Notes",
-      },
       {
         property: "og:site_name",
         content: "task.Notes",
+      },
+      {
+        property: "og:title",
+        content: "Markdownのメモをチケットとしてタスク管理できるツール",
+      },
+      {
+        property: "og:url",
+        content: "https://tasknotes.nklab.dev/",
       },
       {
         property: "og:type",
@@ -65,16 +69,19 @@ export default {
       },
       {
         property: "og:description",
-        content: "タスクはもっと気軽に作れても良い",
+        content: "JIRAやREDMINEのようなチケット管理は便利ですが、ちょっとタスクを作るのに気構えちゃいますよね。task.Notesはもっと気軽にタスクを作れます",
       },
       {
         property: "og:image",
         content: "https://tasknotes.nklab.dev/tasknote_og.png",
       },
-
       {
         name: "twitter:card",
-        content: "https://tasknotes.nklab.dev/tasknote_og.png",
+        content: "summary_large_image",
+      },
+      {
+        name: "twitter:site",
+        content: "@koduki",
       },
     ],
   },
