@@ -16,6 +16,18 @@ export default {
   loginWithGoogle(callback) {
     this.login(new firebase.auth.GoogleAuthProvider(), callback);
   },
+  logout(callback) {
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        store.dispatch("user/drop");
+        callback();
+      })
+      .catch((error) => {
+        console.error("Sign Out Error", error);
+      });
+  },
   login(provider, callback) {
     firebase
       .auth()
@@ -38,5 +50,24 @@ export default {
             this.showError = true;
           });
       });
+  },
+  user() {
+    if (store.state.user.token != "") {
+      const current = new Date().getTime();
+      const diff = (current - store.state.user.timestamp) / 1000;
+      if (diff > 60) {
+        console.log("reflesh");
+        firebase
+          .auth()
+          .currentUser.getIdToken(true)
+          .then(function(token) {
+            store.dispatch("user/reflesh", token);
+          })
+          .catch(function(error) {
+            console.log(error);
+          });
+      }
+    }
+    return store.state.user;
   },
 };

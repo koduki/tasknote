@@ -1,0 +1,16 @@
+steps:
+- name: node
+  entrypoint: yarn
+  args: ['install']
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args: ['-c', "
+    echo VUE_APP_API_BASE_URL='https://tasknote-6fbhe65axa-uc.a.run.app'> .env.production && 
+    gcloud secrets versions access latest --secret=VUE_APP_AUTH_API_DOMAIN|(read x; echo VUE_APP_AUTH_API_DOMAIN=$x  ) >> .env.production &&
+    gcloud secrets versions access latest --secret=VUE_APP_AUTH_API_KEY|(read x;    echo VUE_APP_AUTH_API_KEY=$x     ) >> .env.production
+    " ]
+- name: node
+  entrypoint: yarn
+  args: ['run', 'prod-build']
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['-m', 'cp', '-R', './dist/*', 'gs://todo-app.nklab.dev']

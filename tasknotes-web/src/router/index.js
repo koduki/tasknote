@@ -1,20 +1,21 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Login from '@/views/Login.vue'
-import Home from '@/views/Home.vue'
-import Tickets from '@/views/Tickets.vue'
-import Ticket from '@/views/Ticket.vue'
+import Vue from "vue";
+import VueRouter from "vue-router";
+import Login from "@/views/Login.vue";
+import Home from "@/views/Home.vue";
+import Tickets from "@/views/Tickets.vue";
+import Ticket from "@/views/Ticket.vue";
+import NotFound from "@/views/NotFound.vue";
 
 // store
 import Store from "@/store";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/',
-    name: 'Login',
-    component: Login
+    path: "/",
+    name: "Login",
+    component: Login,
   },
   {
     path: "/home",
@@ -23,27 +24,31 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/tickets',
-    name: 'Tickets',
+    path: "/tickets",
+    name: "Tickets",
     component: Tickets,
     meta: { requiresAuth: true },
   },
   {
-    path: '/tickets/:id',
-    name: 'Ticket',
+    path: "/tickets/:id",
+    name: "Ticket",
     component: Ticket,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '*',
+    name: "error404",
+    component: NotFound,
   }
-]
+];
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: "history",
   base: process.env.BASE_URL,
-  routes
-})
+  routes,
+});
 
 router.beforeEach((to, from, next) => {
-  console.log(Store.state.user);
   if (
     to.matched.some((record) => record.meta.requiresAuth) &&
     !Store.state.user.token
@@ -54,4 +59,4 @@ router.beforeEach((to, from, next) => {
   }
 });
 
-export default router
+export default router;
