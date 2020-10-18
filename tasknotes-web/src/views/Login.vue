@@ -38,12 +38,13 @@
 
               <button type="button" class="btn" @click="signInWithGoogle">
                 <img
+                  width="80%"
                   src="/btn_google_signin_dark_normal_web@2x.png"
                   alt="Googleでログイン"
                 />
               </button>
               <button type="button" class="btn" @click="signInWithTwitter">
-                <img src="/Twitter.png" alt="Twitterでログイン" />
+                <img width="80%" src="/Twitter.png" alt="Twitterでログイン" />
               </button>
             </div>
           </div>
@@ -54,15 +55,20 @@
     </section>
 
     <!-- Features -->
-    <section class="py-8 py-md-11 border-bottom login">
-      <div>
-        <h3>編集モード (Mardown)</h3>
-        <img src="/ss001.png" width="800px" />
-      </div>
-      <div>
-        <h3>Ticketモード (一覧)</h3>
-        <img src="/ss002.png" width="800px" />
-      </div>
+    <section class="">
+      <video
+        width="720px"
+        height="480px"
+        style="object-fit: fill"
+        controls
+        muted
+        autoplay
+        playinline
+        loop
+        src="https://storage.googleapis.com/tasknotes-image-a1216tfewrf3/taskntoes-ss.mp4"
+      >
+        <p>動画を再生するにはvideoタグをサポートしたブラウザが必要です。</p>
+      </video>
       <!-- / .container -->
     </section>
 
@@ -70,7 +76,7 @@
       <div class="container">
         <div class="row">
           <div class="col-12 text-center text-sm">
-            <p class="mb-0">Powered by なからぼ</p>
+            <p class="mb-0">Powered by NKLAB</p>
           </div>
         </div>
       </div>
@@ -91,11 +97,27 @@ footer {
 </style>
 
 <script>
+import axios from "axios";
 import Auth from "@/modules/auth";
 export default {
   name: "Login",
   data() {
     return {};
+  },
+  created() {
+    const host = process.env.VUE_APP_API_BASE_URL;
+    const uri = (host == "none" ? "" : host) + "/tasks/healthcheck";
+
+    axios
+      .get(uri)
+      .then((response) => {
+        console.log("healthcheck:" + response.data);
+      })
+      .catch((error) => {
+        console(
+          `status: ${error.response.status}, message: ${error.response.data}`
+        );
+      });
   },
   methods: {
     signInWithGoogle: function () {

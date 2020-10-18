@@ -90,4 +90,13 @@ public class TaskResource {
         System.out.println(new Date() + ": autosave");
         return new TaskDocument(md);
     }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/healthcheck")
+    public Response healthcheck() throws IOException {
+
+        return Response.ok(new Date()).build();
+    }
 }
