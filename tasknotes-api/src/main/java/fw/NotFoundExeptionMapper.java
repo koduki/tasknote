@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package apps;
+package fw;
 
 import java.util.Scanner;
 import javax.ws.rs.NotFoundException;

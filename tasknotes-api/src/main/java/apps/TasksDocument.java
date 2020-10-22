@@ -9,14 +9,14 @@ package apps;
  *
  * @author koduki
  */
-public class TaskDocument {
+public class TasksDocument {
 
     private String text;
 
-    public TaskDocument() {
+    public TasksDocument() {
     }
 
-    public TaskDocument(String text) {
+    public TasksDocument(String text) {
         this.text = text;
     }
 
