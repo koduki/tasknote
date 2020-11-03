@@ -38,11 +38,11 @@ public class TasksService {
         return r;
     }
 
-    public void saveNote(TasksDocument document, String userId) {
+    public void saveNote(String userId, String noteName, TasksDocument document) {
         var md = document.getText();
 
         var storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
-        var blobId = BlobId.of(dataBucket, userId + "/" + "tasks.md");
+        var blobId = BlobId.of(dataBucket, userId + "/" + findNoteKey(noteName) + ".md");
         var blobInfo = BlobInfo.newBuilder(blobId).build();
 
         storage.create(blobInfo, md.getBytes());
@@ -50,17 +50,24 @@ public class TasksService {
 
     public Optional<TasksDocument> loadNote(String userId, String noteName) {
         var storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
-        var blobId = BlobId.of(dataBucket, userId + "/" + noteName);
-        Optional<TasksDocument> doc;
+        var blobId = BlobId.of(dataBucket, userId + "/" + findNoteKey(noteName) + ".md");
         if (storage.get(blobId) != null) {
             var output = new ByteArrayOutputStream();
             storage.get(blobId).downloadTo(output);
 
             var md = new String(output.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
-            doc = Optional.of(new TasksDocument(md));
+            return Optional.of(new TasksDocument(md));
         } else {
-            doc = Optional.empty();
+            return Optional.empty();
         }
-        return doc;
+    }
+
+    String findNoteKey(String noteName) {
+        var notesName = Map.of("tasks", "メイン");
+        var noteKey = notesName.entrySet().stream()
+                .filter(x -> x.getValue().equals(noteName))
+                .findFirst().get()
+                .getKey();
+        return noteKey;
     }
 }

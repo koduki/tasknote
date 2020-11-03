@@ -86,10 +86,21 @@ export default {
     this.tasks.stopAutoSave();
   },
   methods: {
+    sortScoring(key) {
+      return key == ""
+        ? 2
+        : key == "Open"
+        ? 2
+        : key == "In Progress"
+        ? 1
+        : key == "Closed"
+        ? 3
+        : 4;
+    },
     sortByCol(key) {
       this.togleSort[key] = this.togleSort[key] * -1;
       this.tasks.data.sort(
-        (a, b) => (a[key] < b[key] ? -1 : 1) * this.togleSort[key]
+        (a, b) => (this.sortScoring(a[key]) < this.sortScoring(b[key]) ? -1 : 1) * this.togleSort[key]
       );
     },
     dragList(event, id) {

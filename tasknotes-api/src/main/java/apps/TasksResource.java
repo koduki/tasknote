@@ -48,8 +48,9 @@ public class TasksResource {
     @Path("/save")
     public Response save(@Context SecurityContext ctx, TasksDocument document) throws IOException {
         var userId = ctx.getUserPrincipal().getName();
+        var noteName = "メイン";
 
-        tasksService.saveNote(document, userId);
+        tasksService.saveNote(userId, noteName, document);
         LOGGER.fine("save");
         return Response.ok(Map.of("message", "success"))
                 .build();
@@ -61,7 +62,7 @@ public class TasksResource {
     @Path("/load")
     public Response load(@Context SecurityContext ctx) throws IOException {
         var userId = ctx.getUserPrincipal().getName();
-        var noteName = "tasks.md";
+        var noteName = "メイン";
 
         var doc = tasksService.loadNote(userId, noteName);
         if (doc.isPresent()) {

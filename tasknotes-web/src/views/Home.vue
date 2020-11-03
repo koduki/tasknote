@@ -2,6 +2,40 @@
   <div class="container-fluid home" style="text-align: left">
     <div class="align-items-center pt-3 pb-2 mb-3 border-bottom">
       <div>
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          style="margin-bottom: -8px;border-bottom:none"
+        >
+          メイン
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-light"
+          style="color: black; margin-bottom: -8px; border-right: solid 1px #AAAAAA"
+        >
+          TODO
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-light"
+          style="color: black; margin-bottom: -8px; border-right: solid 1px #AAAAAA"
+        >
+          後で読む
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-light"
+          style="color: black; margin-bottom: -8px"
+        >
+          + Add Note
+        </button>
+      </div>
+    </div>
+
+    <div class="align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <div>
+        <img src="/mode-toggle-1.png" />
         <b-button variant="success" style="margin: 5px">
           <router-link to="/home" style="color: white">Edit Mode</router-link>
         </b-button>
