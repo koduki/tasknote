@@ -34,17 +34,7 @@
     </div>
 
     <div class="align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <div>
-        <img src="/mode-toggle-1.png" />
-        <b-button variant="success" style="margin: 5px">
-          <router-link to="/home" style="color: white">Edit Mode</router-link>
-        </b-button>
-        <b-button style="margin: 5px">
-          <router-link to="/tickets" style="color: white"
-            >Ticket Mode</router-link
-          >
-        </b-button>
-      </div>
+        <router-link to="/tickets" style="color: white"><img src="/mode-toggle-1.png" /></router-link>
     </div>
 
     <div class="row">
@@ -85,6 +75,7 @@ export default {
     };
   },
   created() {
+    this.tasks.list((res) => console.log(res), (res) => {})
     this.tasks.load(
       () => {
         console.log("load");

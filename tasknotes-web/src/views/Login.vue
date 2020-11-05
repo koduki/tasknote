@@ -154,7 +154,7 @@ export default {
   },
   created() {
     const host = process.env.VUE_APP_API_BASE_URL;
-    const uri = (host == "none" ? "" : host) + "/tasks/healthcheck";
+    const uri = (host == "none" ? "" : host) + "/healthcheck";
 
     axios
       .get(uri)

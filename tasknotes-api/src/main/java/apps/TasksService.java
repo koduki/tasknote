@@ -38,19 +38,19 @@ public class TasksService {
         return r;
     }
 
-    public void saveNote(String userId, String noteName, TasksDocument document) {
+    public void saveNote(String userId, String note, TasksDocument document) {
         var md = document.getText();
 
         var storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
-        var blobId = BlobId.of(dataBucket, userId + "/" + findNoteKey(noteName) + ".md");
+        var blobId = BlobId.of(dataBucket, userId + "/" + note + ".md");
         var blobInfo = BlobInfo.newBuilder(blobId).build();
 
         storage.create(blobInfo, md.getBytes());
     }
 
-    public Optional<TasksDocument> loadNote(String userId, String noteName) {
+    public Optional<TasksDocument> loadNote(String userId, String note) {
         var storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
-        var blobId = BlobId.of(dataBucket, userId + "/" + findNoteKey(noteName) + ".md");
+        var blobId = BlobId.of(dataBucket, userId + "/" + note + ".md");
         if (storage.get(blobId) != null) {
             var output = new ByteArrayOutputStream();
             storage.get(blobId).downloadTo(output);
@@ -60,6 +60,11 @@ public class TasksService {
         } else {
             return Optional.empty();
         }
+    }
+
+    public Optional<Map<String, String>> listNote(String userId) {
+        var data = Map.of("tasks", "メイン");
+        return Optional.of(data);
     }
 
     String findNoteKey(String noteName) {

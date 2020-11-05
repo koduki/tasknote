@@ -29,13 +29,24 @@ export default class {
     };
 
     this.load = (callback, errorHandling) => {
-      TaskNotesAPI.callLoad((response) => {
+      var note = "tasks"
+      
+      TaskNotesAPI.callLoad(note, (response) => {
         this.text = response.data.text;
         callback();
       }, errorHandling);
     };
 
+    this.list = (callback, errorHandling) => {    
+      TaskNotesAPI.callNotes((response) => {
+        // console.log(response.data)
+        // this.notes = response.data;
+        callback(response.data);
+      }, errorHandling);
+    };
+
     this.save = (task) => {
+      var note = "tasks"
       if (task) {
         let xs = this.data;
         for (let i = 0; i < xs.lentgh; i++) {
@@ -48,7 +59,7 @@ export default class {
 
       if (this.prevContent != this.content) {
         this.prevContent = this.content;
-        TaskNotesAPI.callSave((response) => {
+        TaskNotesAPI.callSave(note, (response) => {
           if (this.callbackForSave != null) {
             this.callbackForSave(response.data);
           }

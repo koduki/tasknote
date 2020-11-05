@@ -4,7 +4,7 @@ import axios from "axios";
 export default {
   callUploadImage(file, handler, errorHandler) {
     const host = process.env.VUE_APP_API_BASE_URL;
-    const uri = (host == "none" ? "" : host) + "/tasks/image";
+    const uri = (host == "none" ? "" : host) + "/image";
 
     const data = new FormData();
     data.append("file", file);
@@ -25,9 +25,9 @@ export default {
         );
       });
   },
-  callLoad(callback, errorHandling) {
+  callLoad(note, callback, errorHandling) {
     const host = process.env.VUE_APP_API_BASE_URL;
-    const uri = (host == "none" ? "" : host) + "/tasks/load";
+    const uri = (host == "none" ? "" : host) + "/notes/" + note + "/load";
 
     const config = {
       headers: {
@@ -48,9 +48,9 @@ export default {
         }
       });
   },
-  callSave(callback, content) {
+  callSave(note, callback, content) {
     const host = process.env.VUE_APP_API_BASE_URL;
-    const uri = (host == "none" ? "" : host) + "/tasks/save";
+    const uri = (host == "none" ? "" : host) + "/notes/" + note + "/save";
     const data = { text: content };
 
     const config = {
@@ -59,6 +59,19 @@ export default {
       },
     };
     axios.post(uri, data, config).then((response) => {
+      callback(response);
+    });
+  },
+  callNotes(callback) {
+    const host = process.env.VUE_APP_API_BASE_URL;
+    const uri = (host == "none" ? "" : host) + "/notes";
+
+    const config = {
+      headers: {
+        Authorization: "Bearer " + Auth.user().token,
+      },
+    };
+    axios.get(uri, config).then((response) => {
       callback(response);
     });
   },
