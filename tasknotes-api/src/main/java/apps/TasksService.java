@@ -63,7 +63,10 @@ public class TasksService {
     }
 
     public Optional<Map<String, String>> listNote(String userId) {
-        var data = Map.of("tasks", "メイン");
+        var data = Map.of(
+                "tasks", "メイン",
+                "todo", "TODO"
+        );
         return Optional.of(data);
     }
 

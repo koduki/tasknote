@@ -2,39 +2,29 @@
   <div class="container-fluid home" style="text-align: left">
     <div class="align-items-center pt-3 pb-2 mb-3 border-bottom">
       <div>
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          style="margin-bottom: -8px;border-bottom:none"
-        >
-          メイン
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-light"
-          style="color: black; margin-bottom: -8px; border-right: solid 1px #AAAAAA"
-        >
-          TODO
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-light"
-          style="color: black; margin-bottom: -8px; border-right: solid 1px #AAAAAA"
-        >
-          後で読む
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-light"
-          style="color: black; margin-bottom: -8px"
-        >
-          + Add Note
-        </button>
+        <span v-for="(noteName, key) in notes">
+          <button
+            type="button"
+            :class="[
+              currentNote === key
+                ? 'btn note-tab active'
+                : 'btn note-tab inactive',
+            ]"
+            @click="changeTab"
+          >
+            {{ noteName }}
+          </button>
+        </span>
+        <span>
+          <button type="button" class="btn note-add">+ Add Note</button>
+        </span>
       </div>
     </div>
 
     <div class="align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <router-link to="/tickets" style="color: white"><img src="/mode-toggle-1.png" /></router-link>
+      <router-link to="/tickets" style="color: white"
+        ><img src="/mode-toggle-1.png"
+      /></router-link>
     </div>
 
     <div class="row">
@@ -72,10 +62,19 @@ export default {
   data() {
     return {
       tasks: new Tasks(),
+      notes: [],
+      currentNote: "tasks",
     };
   },
   created() {
-    this.tasks.list((res) => console.log(res), (res) => {})
+    const self = this;
+    this.tasks.list(
+      (res) => {
+        self.notes = res;
+        console.log(self.notes.todo);
+      },
+      (res) => {}
+    );
     this.tasks.load(
       () => {
         console.log("load");
@@ -98,11 +97,54 @@ export default {
     this.tasks.stopAutoSave();
   },
 
-  methods: {},
+  methods: {
+    changeTab: function (event) {
+      const item = event.target.textContent.trim();
+      for (let key in this.notes) {
+        if (this.notes[key] === item) {
+          this.currentNote = key;
+          break;
+        }
+      }
+      console.log(event.target.textContent.trim());
+    },
+  },
 };
 </script>
 
 <style>
+.note-tab {
+  cursor: pointer;
+  color: black;
+}
+.note-tab.active {
+  background-color: #e4e4e4;
+  color: #6c757d;
+  border-color: #6c757d;
+  border: 1px solid;
+  margin-bottom: -8px;
+  border-bottom: none;
+}
+.note-tab.active:hover {
+  color: #ffffff;
+
+  background-color: #6c757d;
+}
+.note-tab.inactive {
+  margin-bottom: -8px;
+  border-right: solid 1px #aaaaaa;
+}
+.note-tab.inactive:hover {
+  background-color: #e4e4e4;
+}
+.note-add {
+  color: black;
+  margin-bottom: -8px;
+}
+.note-add:hover {
+  background-color: #e4e4e4;
+}
+
 .MarkdownEditor .CodeMirror {
   height: 800px;
 }

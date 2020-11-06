@@ -7,13 +7,19 @@ export default class {
   constructor() {
     this.timer = null;
     this.callbackForSave = null;
-    this.content = "";
-    this.prevContent = "";
+    this.currentNote = "tasks";
+    this.notes = {
+      "tasks": {
+        content:"",
+        prevContent:""
+      }
+    }
+
 
     if (this.data.length === 0) {
       this.text = Template.defaultEditorContents();
     } else {
-      this.content = TaskHelper.toContent(this.data);
+      this.notes[this.currentNote].content = TaskHelper.toContent(this.data);
     }
 
     //
@@ -29,9 +35,8 @@ export default class {
     };
 
     this.load = (callback, errorHandling) => {
-      var note = "tasks"
       
-      TaskNotesAPI.callLoad(note, (response) => {
+      TaskNotesAPI.callLoad(this.currentNote, (response) => {
         this.text = response.data.text;
         callback();
       }, errorHandling);
@@ -46,7 +51,6 @@ export default class {
     };
 
     this.save = (task) => {
-      var note = "tasks"
       if (task) {
         let xs = this.data;
         for (let i = 0; i < xs.lentgh; i++) {
@@ -57,14 +61,14 @@ export default class {
         this.data = xs;
       }
 
-      if (this.prevContent != this.content) {
-        this.prevContent = this.content;
-        TaskNotesAPI.callSave(note, (response) => {
+      if (this.notes[this.currentNote].prevContent != this.notes[this.currentNote].content) {
+        this.notes[this.currentNote].prevContent = this.notes[this.currentNote].content;
+        TaskNotesAPI.callSave(this.currentNote, (response) => {
           if (this.callbackForSave != null) {
             this.callbackForSave(response.data);
           }
           console.log("save");
-        }, this.content);
+        }, this.notes[this.currentNote].content);
       } else {
         console.log("skip save");
       }
@@ -76,14 +80,14 @@ export default class {
   }
   set data(value) {
     store.dispatch("task/updateTasks", value);
-    this.content = TaskHelper.toContent(value);
+    this.notes[this.currentNote].content = TaskHelper.toContent(value);
   }
 
   get text() {
-    return this.content;
+    return this.notes[this.currentNote].content;
   }
   set text(value) {
-    this.content = value;
+    this.notes[this.currentNote].content = value;
     this.data = TaskHelper.parse(value);
   }
 }

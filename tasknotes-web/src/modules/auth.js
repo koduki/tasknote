@@ -31,24 +31,34 @@ export default {
   login(provider, callback) {
     firebase
       .auth()
-      .signInWithPopup(provider)
-      .then((res) => {
-        res.user
-          .getIdToken()
-          .then(function(token) {
-            store.dispatch("user/store", {
-              id: res.user.uid,
-              token: token,
-              name: res.user.displayName,
-              pic: res.user.photoURL,
-            });
-            callback();
-          })
-          .catch((error) => {
-            console.log(error);
-            this.errorMessage = error.message;
-            this.showError = true;
+      .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(function() {
+        return firebase
+          .auth()
+          .signInWithPopup(provider)
+          .then((res) => {
+            res.user
+              .getIdToken()
+              .then(function(token) {
+                store.dispatch("user/store", {
+                  id: res.user.uid,
+                  token: token,
+                  name: res.user.displayName,
+                  pic: res.user.photoURL,
+                });
+                callback();
+              })
+              .catch((error) => {
+                console.log(error);
+                this.errorMessage = error.message;
+                this.showError = true;
+              });
           });
+      })
+      .catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
       });
   },
   user() {
@@ -59,12 +69,17 @@ export default {
         console.log("reflesh");
         firebase
           .auth()
-          .currentUser.getIdToken(true)
-          .then(function(token) {
-            store.dispatch("user/reflesh", token);
-          })
-          .catch(function(error) {
-            console.log(error);
+          .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+          .then(function() {
+            return firebase
+              .auth()
+              .currentUser.getIdToken(true)
+              .then(function(token) {
+                store.dispatch("user/reflesh", token);
+              })
+              .catch(function(error) {
+                console.log(error);
+              });
           });
       }
     }
