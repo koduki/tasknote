@@ -1,16 +1,23 @@
 export default {
   namespaced: true,
   state: {
-    tasks: [],
+    currentNote: "tasks",
+    notes: { },
   },
   mutations: {
     updateTasks(state, tasks) {
-      state.tasks = tasks;
+      state.notes[state.currentNote] = tasks;
+    },
+    updateCurrent(state, current) {
+      state.currentNote = current;
     },
   },
   actions: {
     updateTasks(context, tasks) {
       context.commit("updateTasks", tasks);
+    },
+    updateCurrent(context, current) {
+      context.commit("updateCurrent", current);
     },
   },
 };

@@ -45,9 +45,26 @@ export default {
   computed: {
     content: {
       get() {
+        console.log("step008:" + this.value);
+        this.content = this.value;
+        if (this.$refs.markdownEditor) {
+          console.log("abc2");
+          const editor = this.$refs.markdownEditor.simplemde;
+          // editor.markdown("# Hello");
+          editor.codemirror.refresh();
+          this.content = "# hoge\n## body\n abc" + new Date();
+        }
         return this.value;
       },
       set(value) {
+        console.log("step005");
+        if (this.$refs.markdownEditor) {
+          console.log("step015");
+          const editor = this.$refs.markdownEditor.simplemde;
+          this.content = "# hoge\n## body\n abc" + new Date();
+          editor.$emit("input", "hoge");
+        }
+
         this.$emit("input", value);
       },
     },
@@ -65,12 +82,10 @@ export default {
       .getElementsByClassName("editor-statusbar")[0]
       .getBoundingClientRect();
     const space = toolbar.top + toolbar.height + statusbar.height + 130;
-    console.log(this.outerHeight);
     const outerHeight =
       this.outerHeight === "auto"
         ? window.outerHeight - space + "px"
         : this.outerHeight;
-    console.log(outerHeight);
     this.get("CodeMirror-wrap").style.height = outerHeight;
     this.get("CodeMirror-vscrollbar").style.height = outerHeight;
   },

@@ -2,11 +2,11 @@
   <div class="container-fluid home" style="text-align: left">
     <div class="align-items-center pt-3 pb-2 mb-3 border-bottom">
       <div>
-        <span v-for="(noteName, key) in notes">
+        <span v-for="(noteName, key) in notes" :key="noteName.key">
           <button
             type="button"
             :class="[
-              currentNote === key
+              tasks.current === key
                 ? 'btn note-tab active'
                 : 'btn note-tab inactive',
             ]"
@@ -63,7 +63,6 @@ export default {
     return {
       tasks: new Tasks(),
       notes: [],
-      currentNote: "tasks",
     };
   },
   created() {
@@ -102,11 +101,10 @@ export default {
       const item = event.target.textContent.trim();
       for (let key in this.notes) {
         if (this.notes[key] === item) {
-          this.currentNote = key;
+          this.tasks.current = key;
           break;
         }
       }
-      console.log(event.target.textContent.trim());
     },
   },
 };

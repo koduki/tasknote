@@ -32,8 +32,8 @@ export default {
     firebase
       .auth()
       .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      .then(function() {
-        return firebase
+      .then(() =>
+        firebase
           .auth()
           .signInWithPopup(provider)
           .then((res) => {
@@ -53,8 +53,8 @@ export default {
                 this.errorMessage = error.message;
                 this.showError = true;
               });
-          });
-      })
+          })
+      )
       .catch(function(error) {
         // Handle Errors here.
         var errorCode = error.code;
@@ -62,7 +62,7 @@ export default {
       });
   },
   user() {
-    if (store.state.user.token != "") {
+    if (store.state.user.token != "" && firebase.auth().currentUser != null) {
       const current = new Date().getTime();
       const diff = (current - store.state.user.timestamp) / 1000;
       if (diff > 60) {
@@ -70,8 +70,8 @@ export default {
         firebase
           .auth()
           .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-          .then(function() {
-            return firebase
+          .then(() =>
+            firebase
               .auth()
               .currentUser.getIdToken(true)
               .then(function(token) {
@@ -79,8 +79,8 @@ export default {
               })
               .catch(function(error) {
                 console.log(error);
-              });
-          });
+              })
+          );
       }
     }
     return store.state.user;

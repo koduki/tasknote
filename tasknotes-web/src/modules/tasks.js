@@ -7,19 +7,17 @@ export default class {
   constructor() {
     this.timer = null;
     this.callbackForSave = null;
-    this.currentNote = "tasks";
     this.notes = {
-      "tasks": {
-        content:"",
-        prevContent:""
-      }
-    }
-
+      tasks: {
+        content: "",
+        prevContent: "",
+      },
+    };
 
     if (this.data.length === 0) {
       this.text = Template.defaultEditorContents();
     } else {
-      this.notes[this.currentNote].content = TaskHelper.toContent(this.data);
+      this.note.content = TaskHelper.toContent(this.data);
     }
 
     //
@@ -35,17 +33,18 @@ export default class {
     };
 
     this.load = (callback, errorHandling) => {
-      
-      TaskNotesAPI.callLoad(this.currentNote, (response) => {
-        this.text = response.data.text;
-        callback();
-      }, errorHandling);
+      TaskNotesAPI.callLoad(
+        this.current,
+        (response) => {
+          this.text = response.data.text;
+          callback();
+        },
+        errorHandling
+      );
     };
 
-    this.list = (callback, errorHandling) => {    
+    this.list = (callback, errorHandling) => {
       TaskNotesAPI.callNotes((response) => {
-        // console.log(response.data)
-        // this.notes = response.data;
         callback(response.data);
       }, errorHandling);
     };
@@ -61,33 +60,60 @@ export default class {
         this.data = xs;
       }
 
-      if (this.notes[this.currentNote].prevContent != this.notes[this.currentNote].content) {
-        this.notes[this.currentNote].prevContent = this.notes[this.currentNote].content;
-        TaskNotesAPI.callSave(this.currentNote, (response) => {
-          if (this.callbackForSave != null) {
-            this.callbackForSave(response.data);
-          }
-          console.log("save");
-        }, this.notes[this.currentNote].content);
+      if (this.note.prevContent != this.note.content) {
+        this.note.prevContent = this.note.content;
+        TaskNotesAPI.callSave(
+          this.current,
+          (response) => {
+            if (this.callbackForSave != null) {
+              this.callbackForSave(response.data);
+            }
+            console.log("save");
+          },
+          this.note.content
+        );
       } else {
         console.log("skip save");
       }
     };
   }
 
+  get note() {
+    if (!this.notes[this.current]) {
+      this.notes[this.current] = {};
+      this.notes[this.current].content = "";
+      this.notes[this.current].prevContent = "";
+    }
+    return this.notes[this.current];
+  }
+
+  get current() {
+    return store.state.task.currentNote;
+  }
+  set current(value) {
+    console.log("001:current:value=" + value);
+    store.dispatch("task/updateCurrent", value);
+  }
+
   get data() {
-    return store.state.task.tasks;
+    if (!store.state.task.notes[this.current]) {
+      store.state.task.notes[this.current] = [];
+    }
+    return store.state.task.notes[this.current];
   }
   set data(value) {
     store.dispatch("task/updateTasks", value);
-    this.notes[this.currentNote].content = TaskHelper.toContent(value);
+    this.note.content = TaskHelper.toContent(value);
   }
 
   get text() {
-    return this.notes[this.currentNote].content;
+    console.log("002:text:data=" + this.data[0].name);
+    this.note.content = TaskHelper.toContent(this.data);
+    // console.log("003:text:content=" + this.note.content);
+    return this.note.content;
   }
   set text(value) {
-    this.notes[this.currentNote].content = value;
+    this.note.content = value;
     this.data = TaskHelper.parse(value);
   }
 }
